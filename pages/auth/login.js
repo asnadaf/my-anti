@@ -20,9 +20,12 @@ export default function Login() {
         const response = await fetch('/api/auth/verify', {
           credentials: 'include',
         });
-        if (response.ok && response.json().role === 'admin') {
+        const user = await response.json();
+        
+        
+        if (response.ok && user.role === 'admin') {
           router.replace('/admin');
-        } else if (response.ok && response.json().role === 'client') {
+        } else if (response.ok && user.role === 'client') {
           router.replace('/client');
         }
       } catch (error) {
@@ -56,6 +59,11 @@ export default function Login() {
         throw new Error(data.message || 'Something went wrong');
       }
 
+      if (data.role === 'admin') {
+        router.replace('/admin');
+      } else {
+        router.replace('/client');
+      }
       // Use replace instead of push to prevent back button issues
       router.replace('/client');
     } catch (err) {

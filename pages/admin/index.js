@@ -7,8 +7,9 @@ import User from '@models/User';
 import Order from '@models/Order';
 
 export async function getServerSideProps(context) {
+  // Ensure user is authenticated
   const auth = await requireAuth(context.req, context.res);
-  
+
   if (!auth) {
     return {
       redirect: {
@@ -18,19 +19,18 @@ export async function getServerSideProps(context) {
     };
   }
 
+  // Ensure user has the 'admin' role
   const roleCheck = await requireRole(['admin'])(context.req, context.res);
   
-  if (!roleCheck) {
-    return {
-      redirect: {
-        destination: '/client',
-        permanent: false,
-      },
-    };
+  // If roleCheck has a redirect object, return it
+  if (roleCheck?.redirect) {
+    return roleCheck;
   }
 
+  // Database connection
   await dbConnect();
 
+  // Fetch stats and recent orders
   const [
     categoriesCount,
     productsCount,
@@ -62,7 +62,7 @@ export default function AdminDashboard({ stats, recentOrders }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-2">Categories</h3>
@@ -113,4 +113,4 @@ export default function AdminDashboard({ stats, recentOrders }) {
       </div>
     </div>
   );
-} 
+}
