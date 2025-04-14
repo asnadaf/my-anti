@@ -1,10 +1,10 @@
-import { requireAuth, requireRole } from '../../../lib/auth';
-import dbConnect from '../../../lib/db';
-import Category from '../../../models/Category';
-import Product from '../../../models/Product';
-import LicenseKey from '../../../models/LicenseKey';
-import User from '../../../models/User';
-import Order from '../../../models/Order';
+import { requireAuth, requireRole } from '@lib/auth';
+import dbConnect from '@lib/db';
+import Category from '@models/Category';
+import Product from '@models/Product';
+import LicenseKey from '@models/LicenseKey';
+import User from '@models/User';
+import Order from '@models/Order';
 
 export async function getServerSideProps(context) {
   await requireAuth(context.req, context.res, () => {});

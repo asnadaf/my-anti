@@ -4,6 +4,19 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': './src',
+      '@components': './components',
+      '@hooks': './hooks',
+      '@lib': './lib',
+      '@models': './models',
+      '@styles': './styles',
+      '@public': './public'
+    };
+    return config;
+  },
   async headers() {
     return [
       {

@@ -1,6 +1,6 @@
-import { requireAuth, requireRole } from '../../../../../lib/auth';
-import dbConnect from '../../../../../lib/db';
-import Product from '../../../../../models/Product';
+import { requireAuth, requireRole } from '@lib/auth';
+import dbConnect from '@lib/db';
+import Product from '@models/Product';
 
 export default async function handler(req, res) {
   const auth = await requireAuth(req, res);

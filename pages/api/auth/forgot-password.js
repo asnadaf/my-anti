@@ -1,7 +1,7 @@
-import { dbConnect } from '../../../lib/db';
-import User from '../../../models/User';
-import { generateToken } from '../../../lib/auth';
-import { sendPasswordResetEmail } from '../../../lib/mailer';
+import dbConnect from '@lib/db';
+import User from '@models/User';
+import { generateToken } from '@lib/auth';
+import { sendPasswordResetEmail } from '@lib/mailer';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

@@ -1,75 +1,45 @@
-import { requireAuth } from '../../../lib/auth';
-import dbConnect from '../../../lib/db';
-import Order from '../../../models/Order';
+import { requireAuth } from '@lib/auth';
+import dbConnect from '@lib/db';
+import Order from '@models/Order';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
-export async function getServerSideProps(context) {
-  await requireAuth(context.req, context.res, () => {});
+export default function ClientDashboard() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  await dbConnect();
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userData = await requireAuth();
+        if (userData) {
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error('Auth error:', error);
+        router.push('/auth/login');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const recentOrders = await Order.find({ user: context.req.user._id })
-    .sort({ createdAt: -1 })
-    .limit(5)
-    .populate('items.product', 'name');
+    checkAuth();
+  }, [router]);
 
-  return {
-    props: {
-      recentOrders: JSON.parse(JSON.stringify(recentOrders)),
-    },
-  };
-}
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-export default function ClientDashboard({ recentOrders }) {
+  if (!user) {
+    return null; // Will redirect to login
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">My Dashboard</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
-          <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div key={order._id} className="border-b pb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">Order #{order._id}</span>
-                  <span className="text-sm text-gray-500">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {order.items.length} items • ${order.totalAmount}
-                </div>
-                <div className="text-sm">
-                  Status: <span className="font-medium">{order.status}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="space-y-4">
-            <a
-              href="/client/products"
-              className="block p-4 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-            >
-              Browse Products
-            </a>
-            <a
-              href="/client/orders"
-              className="block p-4 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-            >
-              View All Orders
-            </a>
-            <a
-              href="/client/profile"
-              className="block p-4 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-            >
-              Update Profile
-            </a>
-          </div>
-        </div>
+      <h1 className="text-2xl font-bold mb-4">Welcome, {user.name}</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Add your dashboard content here */}
       </div>
     </div>
   );

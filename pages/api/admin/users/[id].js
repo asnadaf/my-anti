@@ -1,6 +1,6 @@
-import { requireAuth, requireRole } from '../../../../lib/auth';
-import dbConnect from '../../../../lib/db';
-import User from '../../../../models/User';
+import { requireAuth, requireRole } from '@lib/auth';
+import dbConnect from '@lib/db';
+import User from '@models/User';
 import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {

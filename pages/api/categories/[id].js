@@ -1,6 +1,6 @@
-import { requireAuth, requireRole } from '../../../lib/auth';
-import dbConnect from '../../../lib/db';
-import Category from '../../../models/Category';
+import { requireAuth, requireRole } from '@lib/auth';
+import dbConnect from '@lib/db';
+import Category from '@models/Category';
 
 export default async function handler(req, res) {
   const { method } = req;

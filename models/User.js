@@ -20,7 +20,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a password.'],
     minlength: [6, 'Password must be at least 6 characters'],
-    select: false,
   },
   role: {
     type: String,
@@ -36,9 +35,9 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    next();
+    return next(); 
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -47,8 +46,22 @@ UserSchema.pre('save', async function(next) {
 });
 
 // Match user entered password to hashed password in database
-UserSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+  console.log('\n=== Password Comparison Debug ===');
+  console.log('Entered Password:', enteredPassword);
+  console.log('Stored Password Hash:', this.password);
+  console.log('User Email:', this.email);
+  
+  try {
+    const isMatch = await bcrypt.compare(enteredPassword, this.password);
+    console.log('Password Match Result:', isMatch);
+    console.log('=== End Password Comparison ===\n');
+    return isMatch;
+  } catch (error) {
+    console.error('Error in password comparison:', error);
+    console.log('=== End Password Comparison with Error ===\n');
+    return false;
+  }
 };
 
 export default mongoose.models.User || mongoose.model('User', UserSchema); 
