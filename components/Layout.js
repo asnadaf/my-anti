@@ -1,15 +1,52 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import { Sun, Moon, ShoppingCart, User } from 'lucide-react';
+import { useRouter } from 'next/router';
+import { Sun, Moon, ShoppingCart, User, LogOut } from 'lucide-react';
+import { logout } from '@lib/auth';
 
 export default function Layout({ children }) {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/verify', {
+          credentials: 'include',
+        });
+        setIsAuthenticated(response.ok);
+      } catch (error) {
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkAuth();
+  }, [router.pathname]); // Re-check auth when route changes
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await logout();
+      setIsAuthenticated(false);
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -39,9 +76,20 @@ export default function Layout({ children }) {
               <Link href="/cart" className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
                 <ShoppingCart size={20} />
               </Link>
-              <Link href="/auth/login" className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-                <User size={20} />
-              </Link>
+              {isAuthenticated ? (
+                <button
+                  onClick={handleLogout}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Logout"
+                  disabled={isLoading}
+                >
+                  <LogOut size={20} />
+                </button>
+              ) : (
+                <Link href="/auth/login" className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <User size={20} />
+                </Link>
+              )}
             </div>
           </div>
         </nav>

@@ -11,17 +11,24 @@ export default function Login() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
     // Check if user is already logged in
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/verify');
-        if (response.ok) {
-          router.push('/client');
+        const response = await fetch('/api/auth/verify', {
+          credentials: 'include',
+        });
+        if (response.ok && response.json().role === 'admin') {
+          router.replace('/admin');
+        } else if (response.ok && response.json().role === 'client') {
+          router.replace('/client');
         }
       } catch (error) {
         console.error('Auth check error:', error);
+      } finally {
+        setIsCheckingAuth(false);
       }
     };
 
@@ -40,7 +47,7 @@ export default function Login() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-        credentials: 'include', // Important for cookies
+        credentials: 'include',
       });
 
       const data = await res.json();
@@ -49,14 +56,18 @@ export default function Login() {
         throw new Error(data.message || 'Something went wrong');
       }
 
-      // Redirect to client dashboard
-      router.push('/client');
+      // Use replace instead of push to prevent back button issues
+      router.replace('/client');
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  if (isCheckingAuth) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <>

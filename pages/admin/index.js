@@ -7,8 +7,27 @@ import User from '@models/User';
 import Order from '@models/Order';
 
 export async function getServerSideProps(context) {
-  await requireAuth(context.req, context.res, () => {});
-  await requireRole(['admin'])(context.req, context.res, () => {});
+  const auth = await requireAuth(context.req, context.res);
+  
+  if (!auth) {
+    return {
+      redirect: {
+        destination: '/auth/login',
+        permanent: false,
+      },
+    };
+  }
+
+  const roleCheck = await requireRole(['admin'])(context.req, context.res);
+  
+  if (!roleCheck) {
+    return {
+      redirect: {
+        destination: '/client',
+        permanent: false,
+      },
+    };
+  }
 
   await dbConnect();
 
