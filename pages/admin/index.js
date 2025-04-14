@@ -1,13 +1,102 @@
-import { requireAuth, requireRole } from '@lib/auth';
+import { requireAuth } from '@lib/auth';
 import dbConnect from '@lib/db';
 import Category from '@models/Category';
 import Product from '@models/Product';
 import LicenseKey from '@models/LicenseKey';
 import User from '@models/User';
 import Order from '@models/Order';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+
+export default function AdminDashboard({ stats, recentOrders }) {
+  const router = useRouter();
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Link href="/admin/categories" className="block">
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <h2 className="text-xl font-semibold mb-2">Categories</h2>
+            <p className="text-3xl font-bold text-primary">{stats.categories}</p>
+            <p className="text-sm text-gray-500">Total categories</p>
+          </div>
+        </Link>
+
+        <Link href="/admin/products" className="block">
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <h2 className="text-xl font-semibold mb-2">Products</h2>
+            <p className="text-3xl font-bold text-primary">{stats.products}</p>
+            <p className="text-sm text-gray-500">Total products</p>
+          </div>
+        </Link>
+
+        <Link href="/admin/keys" className="block">
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <h2 className="text-xl font-semibold mb-2">License Keys</h2>
+            <p className="text-3xl font-bold text-primary">{stats.keys}</p>
+            <p className="text-sm text-gray-500">Total keys</p>
+          </div>
+        </Link>
+
+        <Link href="/admin/users" className="block">
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <h2 className="text-xl font-semibold mb-2">Users</h2>
+            <p className="text-3xl font-bold text-primary">{stats.users}</p>
+            <p className="text-sm text-gray-500">Total users</p>
+          </div>
+        </Link>
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {recentOrders.map((order) => (
+                <tr key={order._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {order._id}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {order.product.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {order.user.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export async function getServerSideProps(context) {
-  // Ensure user is authenticated
   const auth = await requireAuth(context.req, context.res);
 
   if (!auth) {
@@ -19,98 +108,38 @@ export async function getServerSideProps(context) {
     };
   }
 
-  // Ensure user has the 'admin' role
-  const roleCheck = await requireRole(['admin'])(context.req, context.res);
-  
-  // If roleCheck has a redirect object, return it
-  if (roleCheck?.redirect) {
-    return roleCheck;
+  if (auth.role !== 'admin') {
+    return {
+      redirect: {
+        destination: '/client',
+        permanent: false,
+      },
+    };
   }
 
-  // Database connection
   await dbConnect();
 
-  // Fetch stats and recent orders
-  const [
-    categoriesCount,
-    productsCount,
-    keysCount,
-    usersCount,
-    recentOrders,
-  ] = await Promise.all([
+  const [categories, products, keys, users, orders] = await Promise.all([
     Category.countDocuments(),
     Product.countDocuments(),
     LicenseKey.countDocuments(),
     User.countDocuments(),
-    Order.find().sort({ createdAt: -1 }).limit(5).populate('user', 'email'),
+    Order.find()
+      .populate('product', 'name')
+      .populate('user', 'email')
+      .sort({ createdAt: -1 })
+      .limit(5)
   ]);
 
   return {
     props: {
       stats: {
-        categories: categoriesCount,
-        products: productsCount,
-        keys: keysCount,
-        users: usersCount,
+        categories,
+        products,
+        keys,
+        users,
       },
-      recentOrders: JSON.parse(JSON.stringify(recentOrders)),
+      recentOrders: JSON.parse(JSON.stringify(orders)),
     },
   };
-}
-
-export default function AdminDashboard({ stats, recentOrders }) {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-2">Categories</h3>
-          <p className="text-3xl font-bold">{stats.categories}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-2">Products</h3>
-          <p className="text-3xl font-bold">{stats.products}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-2">License Keys</h3>
-          <p className="text-3xl font-bold">{stats.keys}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-2">Users</h3>
-          <p className="text-3xl font-bold">{stats.users}</p>
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-left">Order ID</th>
-                <th className="px-4 py-2 text-left">User</th>
-                <th className="px-4 py-2 text-left">Amount</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-left">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentOrders.map((order) => (
-                <tr key={order._id}>
-                  <td className="px-4 py-2">{order._id}</td>
-                  <td className="px-4 py-2">{order.user.email}</td>
-                  <td className="px-4 py-2">${order.totalAmount}</td>
-                  <td className="px-4 py-2">{order.status}</td>
-                  <td className="px-4 py-2">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
 }
