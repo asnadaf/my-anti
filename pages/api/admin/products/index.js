@@ -1,55 +1,48 @@
-import { requireAuth, requireRole } from '../../../../lib/auth';
-import dbConnect from '../../../../lib/db';
-import Product from '../../../../models/Product';
+import { requireAuth } from '@lib/auth';
+import dbConnect from '@lib/db';
+import Product from '@models/Product';
 
 export default async function handler(req, res) {
-  const auth = await requireAuth(req, res);
-  if (!auth) {
-    return res.status(401).json({ message: 'Authentication required' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const roleCheck = await requireRole(['admin'])(req, res);
-  if (!roleCheck) {
-    return res.status(403).json({ message: 'Insufficient permissions' });
-  }
+  try {
+    const auth = await requireAuth(req, res);
+    if (!auth || auth.role !== 'admin') {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
-  await dbConnect();
+    const { name, description, price, category, status, image, features } = req.body;
 
-  switch (req.method) {
-    case 'GET':
-      try {
-        const products = await Product.find({}).populate('category').lean();
-        return res.status(200).json(products);
-      } catch (error) {
-        return res.status(500).json({ message: 'Error fetching products' });
-      }
+    if (!name || !description || !price || !category) {
+      return res.status(400).json({ message: 'Name, description, price, and category are required' });
+    }
 
-    case 'POST':
-      try {
-        const { name, description, price, category, slug, stock } = req.body;
-        
-        if (!name || !slug || !price || !category) {
-          return res.status(400).json({ message: 'Name, slug, price, and category are required' });
-        }
+    await dbConnect();
 
-        const product = await Product.create({
-          name,
-          description,
-          price,
-          category,
-          slug,
-          stock: stock || 0,
-        });
+    // Generate slug from name
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
 
-        return res.status(201).json(product);
-      } catch (error) {
-        if (error.code === 11000) {
-          return res.status(400).json({ message: 'Product with this slug already exists' });
-        }
-        return res.status(500).json({ message: 'Error creating product' });
-      }
+    const product = new Product({
+      name,
+      description,
+      price: parseFloat(price),
+      category,
+      status: status || 'active',
+      image,
+      features: features ? features.filter(f => f.trim()) : [],
+      slug
+    });
 
-    default:
-      return res.status(405).json({ message: 'Method not allowed' });
+    await product.save();
+
+    return res.status(201).json(product);
+  } catch (error) {
+    console.error('Error creating product:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 } 

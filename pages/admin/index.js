@@ -32,7 +32,7 @@ export default function AdminDashboard({ stats, recentOrders }) {
           </div>
         </Link>
 
-        <Link href="/admin/keys" className="block">
+        <Link href="/admin/licenseKeys" className="block">
           <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
             <h2 className="text-xl font-semibold mb-2">License Keys</h2>
             <p className="text-3xl font-bold text-primary">{stats.keys}</p>

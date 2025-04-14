@@ -1,71 +1,69 @@
-import { requireAuth, requireRole } from '@lib/auth';
+import { requireAuth } from '@lib/auth';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
 
 export default async function handler(req, res) {
-  const auth = await requireAuth(req, res);
-  if (!auth) {
-    return res.status(401).json({ message: 'Authentication required' });
-  }
-
-  const roleCheck = await requireRole(['admin'])(req, res);
-  if (!roleCheck) {
-    return res.status(403).json({ message: 'Insufficient permissions' });
-  }
-
-  await dbConnect();
   const { id } = req.query;
 
-  switch (req.method) {
-    case 'GET':
-      try {
-        const product = await Product.findById(id).populate('category').lean();
-        if (!product) {
-          return res.status(404).json({ message: 'Product not found' });
-        }
-        return res.status(200).json(product);
-      } catch (error) {
-        return res.status(500).json({ message: 'Error fetching product' });
+  if (!['PUT', 'DELETE'].includes(req.method)) {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  try {
+    const auth = await requireAuth(req, res);
+    if (!auth || auth.role !== 'admin') {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    await dbConnect();
+
+    if (req.method === 'PUT') {
+      const { name, description, price, category, status, image, features } = req.body;
+
+      if (!name || !description || !price || !category) {
+        return res.status(400).json({ message: 'Name, description, price, and category are required' });
       }
 
-    case 'PUT':
-      try {
-        const { name, description, price, category, slug, stock } = req.body;
-        
-        if (!name || !slug || !price || !category) {
-          return res.status(400).json({ message: 'Name, slug, price, and category are required' });
-        }
+      // Generate new slug if name has changed
+      const newSlug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
 
-        const product = await Product.findByIdAndUpdate(
-          id,
-          { name, description, price, category, slug, stock },
-          { new: true, runValidators: true }
-        ).populate('category').lean();
+      const updateData = {
+        name,
+        description,
+        price: parseFloat(price),
+        category,
+        status: status || 'active',
+        image: image || '',
+        features: Array.isArray(features) ? features.filter(f => f && f.trim()) : [],
+        slug: newSlug
+      };
 
-        if (!product) {
-          return res.status(404).json({ message: 'Product not found' });
-        }
+      const product = await Product.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true }
+      );
 
-        return res.status(200).json(product);
-      } catch (error) {
-        if (error.code === 11000) {
-          return res.status(400).json({ message: 'Product with this slug already exists' });
-        }
-        return res.status(500).json({ message: 'Error updating product' });
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
       }
 
-    case 'DELETE':
-      try {
-        const product = await Product.findByIdAndDelete(id).lean();
-        if (!product) {
-          return res.status(404).json({ message: 'Product not found' });
-        }
-        return res.status(200).json({ message: 'Product deleted successfully' });
-      } catch (error) {
-        return res.status(500).json({ message: 'Error deleting product' });
+      return res.status(200).json(product);
+    }
+
+    if (req.method === 'DELETE') {
+      const product = await Product.findByIdAndDelete(id);
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
       }
 
-    default:
-      return res.status(405).json({ message: 'Method not allowed' });
+      return res.status(200).json({ message: 'Product deleted successfully' });
+    }
+  } catch (error) {
+    console.error('Error handling product:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 } 

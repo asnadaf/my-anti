@@ -1,35 +1,30 @@
 import mongoose from 'mongoose';
 
-const LicenseKeySchema = new mongoose.Schema({
-  key: {
-    type: String,
-    required: [true, 'Please provide a license key.'],
-    unique: true,
+const licenseKeySchema = new mongoose.Schema(
+  {
+    key: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'used'],
+      default: 'active',
+    },
   },
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: [true, 'Please provide a product for this license key.'],
-  },
-  order: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Order',
-  },
-  sold: {
-    type: Boolean,
-    default: false,
-  },
-  soldAt: {
-    type: Date,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Generate a random license key before saving
-LicenseKeySchema.pre('save', function(next) {
+licenseKeySchema.pre('save', function(next) {
   if (!this.key) {
     this.key = generateLicenseKey();
   }
@@ -55,4 +50,4 @@ function generateLicenseKey() {
   return key;
 }
 
-export default mongoose.models.LicenseKey || mongoose.model('LicenseKey', LicenseKeySchema); 
+export default mongoose.models.LicenseKey || mongoose.model('LicenseKey', licenseKeySchema); 

@@ -23,13 +23,20 @@ const ProductSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: [true, 'Please provide an image for this product.'],
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
     required: [true, 'Please provide a category for this product.'],
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active',
+  },
+  features: [{
+    type: String,
+  }],
   inStock: {
     type: Boolean,
     default: true,
