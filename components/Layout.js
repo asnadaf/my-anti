@@ -14,6 +14,12 @@ export default function Layout({ children }) {
 
   useEffect(() => {
     setMounted(true);
+    // Skip auth check for root path to prevent interference with redirection
+    if (router.pathname === '/') {
+      setIsLoading(false);
+      return;
+    }
+    
     // Check authentication status
     const checkAuth = async () => {
       try {
@@ -54,11 +60,11 @@ export default function Layout({ children }) {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-              <Link href="/" className="flex-shrink-0 flex items-center">
+              <Link href="/buyantivirus" className="flex-shrink-0 flex items-center">
                 <span className="text-xl font-bold">Your Logo</span>
               </Link>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link href="/buyantivirus" className="nav-link">
+                <Link href="/buyantivirus/products" className="nav-link">
                   Products
                 </Link>
                 <Link href="/buyantivirus/about" className="nav-link">
