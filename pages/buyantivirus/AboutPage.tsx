@@ -20,7 +20,7 @@ export function AboutPage() {
         <link rel="canonical" href="https://securekeymaster.com/about" />
       </Head>
       <div className="min-h-screen flex flex-col bg-background">
-        <Header />
+        {/* <Header /> */}
         <main className="flex-grow">
           <section className="bg-security-gradient py-16 dark:bg-gradient-to-br dark:from-blue-900 dark:to-indigo-900" aria-label="About Hero">
             <div className="container mx-auto px-4 text-center">
