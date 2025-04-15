@@ -15,7 +15,7 @@ interface Product {
   id: number;
   name: string;
   description: string;
-  price: number;
+  discountPrice: number;
   originalPrice: number;
   discount: number;
   devices: number;
@@ -56,7 +56,7 @@ export default function BuyAntivirusPage({ products: initialProducts, categories
     .filter(product => {
       if (selectedFilter === 'all') return true;
       if (selectedFilter === 'popular') return product.popular;
-      if (selectedFilter === 'under30') return product.price < 30;
+      if (selectedFilter === 'under30') return product.discountPrice < 30;
       if (selectedFilter === 'multidevice') return product.devices > 3;
       return true;
     });
@@ -79,8 +79,8 @@ export default function BuyAntivirusPage({ products: initialProducts, categories
         "sku": product.sku,
         "offers": {
           "@type": "Offer",
-          "price": product.price.toString(),
-          "priceCurrency": "USD",
+          "price": product.discountPrice.toString(),
+          "priceCurrency": "RS",
           "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
           "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         },

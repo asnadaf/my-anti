@@ -4,20 +4,25 @@ import Layout from '@components/Layout';
 import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import Category from '@models/Category';
+import Duration from '@models/Duration';
 import { requireAuth } from '@lib/auth';
 
-export default function NewProduct({ categories }) {
+export default function NewProduct({ categories, durations }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
+    originalPrice: '',
+    discountPrice: '',
     category: '',
     status: 'active',
     image: '',
     features: [''],
+    stockCount: 0,
+    duration: '',
+    tag: 'None'
   });
 
   const handleSubmit = async (e) => {
@@ -69,7 +74,7 @@ export default function NewProduct({ categories }) {
     <Layout>
       <SEO title="Add New Product" />
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Add New Product</h1>
 
           {error && (
@@ -107,7 +112,7 @@ export default function NewProduct({ categories }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price
+                Original Price
               </label>
               <input
                 type="number"
@@ -115,8 +120,22 @@ export default function NewProduct({ categories }) {
                 min="0"
                 step="0.01"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                value={formData.originalPrice}
+                onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Discount Price (Optional)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                value={formData.discountPrice}
+                onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
               />
             </div>
 
@@ -198,6 +217,55 @@ export default function NewProduct({ categories }) {
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Stock Count
+              </label>
+              <input
+                type="number"
+                min="0"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                value={formData.stockCount}
+                onChange={(e) => setFormData({ ...formData, stockCount: parseInt(e.target.value) })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tag
+              </label>
+              <select
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                value={formData.tag}
+                onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+              >
+                <option value="None">None</option>
+                <option value="Featured">Featured</option>
+                <option value="Top">Top</option>
+                <option value="Trending">Trending</option>
+                <option value="Best Seller">Best Seller</option>
+                <option value="New">New</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Duration
+              </label>
+              <select
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                value={formData.duration}
+                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+              >
+                <option value="">Select a duration</option>
+                {durations.map((duration) => (
+                  <option key={duration._id} value={duration._id}>
+                    {duration.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
@@ -243,11 +311,15 @@ export async function getServerSideProps(context) {
   }
 
   await dbConnect();
-  const categories = await Category.find({}).lean();
+  const [categories, durations] = await Promise.all([
+    Category.find({}).lean(),
+    Duration.find({}).lean()
+  ]);
 
   return {
     props: {
       categories: JSON.parse(JSON.stringify(categories)),
+      durations: JSON.parse(JSON.stringify(durations)),
     },
   };
 } 

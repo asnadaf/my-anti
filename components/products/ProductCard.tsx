@@ -11,7 +11,7 @@ interface Product {
   id: number;
   name: string;
   description: string;
-  price: number;
+  discountPrice: number;
   originalPrice: number;
   discount: number;
   devices: number;
@@ -34,9 +34,9 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
-    <article className="bg-white dark:bg-card rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-border hover:shadow-lg transition-shadow duration-300" role="article">
+    <article className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg" role="article">
       <Link href={`/buyantivirus/products/${product.slug}`} className="block">
-        <div className="relative h-48 w-full">
+        <div className="relative h-48 w-full bg-gray-50 dark:bg-gray-900">
           <Image
             src={product.image}
             alt={product.name}
@@ -45,34 +45,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           {product.popular && (
-            <Badge className="absolute top-2 right-2 bg-blue-600 text-white">
+            <Badge className="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white">
               Popular
             </Badge>
           )}
         </div>
 
         <div className="p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               {product.name}
             </h3>
             <div className="flex items-center text-yellow-500">
               <Star className="h-4 w-4 fill-current" />
-              <span className="ml-1 text-sm text-gray-600 dark:text-muted-foreground">
+              <span className="ml-1 text-sm text-gray-600 dark:text-gray-300">
                 {product.rating} ({product.reviews})
               </span>
             </div>
           </div>
 
-          <p className="text-gray-600 dark:text-muted-foreground text-sm mb-4">
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
             {product.description}
           </p>
 
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-2xl font-bold text-gray-900 dark:text-foreground">
-              ${product.price}
+            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              ${product.discountPrice}
             </span>
-            <span className="text-gray-500 line-through">
+            <span className="text-gray-500 dark:text-gray-400 line-through">
               ${product.originalPrice}
             </span>
             <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
@@ -81,15 +81,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
-            <Badge variant="outline" className="text-gray-600 dark:text-muted-foreground">
+            <Badge variant="outline" className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600">
               {product.devices} Devices
             </Badge>
-            <Badge variant="outline" className="text-gray-600 dark:text-muted-foreground">
+            <Badge variant="outline" className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600">
               {product.duration}
             </Badge>
           </div>
 
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors">
             View Details
           </Button>
         </div>

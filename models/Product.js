@@ -16,10 +16,14 @@ const ProductSchema = new mongoose.Schema({
     required: [true, 'Please provide a description for this product.'],
     maxlength: [1000, 'Description cannot be more than 1000 characters'],
   },
-  price: {
+  originalPrice: {
     type: Number,
-    required: [true, 'Please provide a price for this product.'],
+    required: [true, 'Please provide an original price for this product.'],
     min: [0, 'Price cannot be negative'],
+  },
+  discountPrice: {
+    type: Number,
+    min: [0, 'Discount price cannot be negative'],
   },
   image: {
     type: String,
@@ -42,10 +46,11 @@ const ProductSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  featured: {
-    type: Boolean,
-    default: false,
-  },
+  tag: {
+    type: String,
+    enum: ['Featured', 'Top', 'Trending', 'Best Seller', 'New', 'None'],
+    default: 'None',
+  },  
   createdAt: {
     type: Date,
     default: Date.now,

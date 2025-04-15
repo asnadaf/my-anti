@@ -77,7 +77,7 @@ export default function ProductsPage({ products: initialProducts }) {
           />
         </div>
 
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -88,7 +88,10 @@ export default function ProductsPage({ products: initialProducts }) {
                   Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price
+                  Original Price
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Discount Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
@@ -122,7 +125,12 @@ export default function ProductsPage({ products: initialProducts }) {
                     <div className="text-sm text-gray-500">{product.description}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">${product.price}</div>
+                    <div className="text-sm text-gray-900">${product.originalPrice}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {product.discountPrice ? `$${product.discountPrice}` : '-'}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{product.category?.name}</div>

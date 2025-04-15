@@ -13,7 +13,7 @@ interface Product {
   name: string;
   slug: string;
   description: string;
-  price: number;
+  discountPrice: number;
   originalPrice?: number;
   discount?: number;
   devices?: number;
@@ -83,7 +83,7 @@ export default function ProductDetailsPage({ product, error }: ProductDetailsPag
     "image": product.image,
     "offers": {
       "@type": "Offer",
-      "price": product.price.toString(),
+      "price": product.discountPrice.toString(),
       "priceCurrency": "USD",
       "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -160,8 +160,8 @@ export default function ProductDetailsPage({ product, error }: ProductDetailsPag
               {/* Price Section */}
               <div className="space-y-4">
                 <div className="flex items-baseline gap-4">
-                  <span className="text-4xl font-bold text-blue-600">${product.price.toFixed(2)}</span>
-                  {product.originalPrice && product.originalPrice > product.price && (
+                  <span className="text-4xl font-bold text-blue-600">${product.discountPrice.toFixed(2)}</span>
+                  {product.originalPrice && product.originalPrice > product.discountPrice && (
                     <span className="text-xl text-gray-500 line-through">${product.originalPrice.toFixed(2)}</span>
                   )}
                   {product.discount && product.discount > 0 && (

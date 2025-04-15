@@ -112,15 +112,31 @@ export default function EditProductPage({ product: initialProduct, categories })
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Price</label>
+                  <label className="block text-sm font-medium text-gray-700">Original Price</label>
                   <input
                     type="number"
-                    name="price"
-                    value={product.price}
+                    name="originalPrice"
+                    value={product.originalPrice}
                     onChange={handleChange}
                     step="0.01"
+                    min="0"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Discount Price (Optional)</label>
+                  <input
+                    type="number"
+                    name="discountPrice"
+                    value={product.discountPrice || ''}
+                    onChange={handleChange}
+                    step="0.01"
+                    min="0"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -167,6 +183,37 @@ export default function EditProductPage({ product: initialProduct, categories })
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                   </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tag</label>
+                  <select
+                    name="tag"
+                    value={product.tag || 'None'}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  >
+                    <option value="None">None</option>
+                    <option value="Featured">Featured</option>
+                    <option value="Top">Top</option>
+                    <option value="Trending">Trending</option>
+                    <option value="Best Seller">Best Seller</option>
+                    <option value="New">New</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Stock Count</label>
+                  <input
+                    type="number"
+                    name="stockCount"
+                    value={product.stockCount || 0}
+                    onChange={handleChange}
+                    min="0"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
                 </div>
               </div>
 

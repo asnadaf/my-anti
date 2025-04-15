@@ -14,7 +14,7 @@ const productsData = [
     id: 1,
     name: "Norton 360 Deluxe",
     description: "Complete protection for up to 5 devices with secure VPN and dark web monitoring.",
-    price: 29.99,
+    discountPrice: 29.99,
     originalPrice: 79.99,
     discount: 63,
     devices: 5,
@@ -34,7 +34,7 @@ const productsData = [
     id: 2,
     name: "McAfee Total Protection",
     description: "Advanced security suite with identity protection for up to 10 devices.",
-    price: 34.99,
+    discountPrice: 34.99,
     originalPrice: 89.99,
     discount: 61,
     devices: 10,
@@ -75,7 +75,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ category = 'all' }) =
     .filter(product => {
       if (selectedFilter === 'all') return true;
       if (selectedFilter === 'popular') return product.popular;
-      if (selectedFilter === 'under30') return product.price < 30;
+      if (selectedFilter === 'under30') return product.discountPrice < 30;
       if (selectedFilter === 'multidevice') return product.devices > 3;
       return true;
     });
@@ -98,7 +98,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ category = 'all' }) =
         "sku": product.sku,
         "offers": {
           "@type": "Offer",
-          "price": product.price.toString(),
+          "price": product.discountPrice.toString(),
           "priceCurrency": "USD",
           "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
           "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -113,45 +113,44 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ category = 'all' }) =
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-background">
       <CategoryBar 
         selectedCategory={selectedFilter}
         onCategoryChange={setSelectedFilter}
       />
       
       {/* Hero section with gradient background */}
-      <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-12 dark:from-blue-900 dark:to-indigo-900" aria-label="Products Hero">
+      <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-16 dark:from-blue-900 dark:to-indigo-900" aria-label="Products Hero">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold mb-4 text-white">
             Genuine Antivirus License Keys
           </h1>
           <p className="text-lg text-blue-100 max-w-2xl mx-auto">
-            Browse our selection of 100% authentic license keys for top antivirus brands
-            with instant delivery and 24/7 support.
+            Browse 100% authentic antivirus keys from trusted brands. Instant delivery & 24/7 support.
           </p>
         </div>
       </section>
 
       {/* Main content section */}
-      <section className="container mx-auto px-4 py-12" aria-label="Products List">
+      <section className="container mx-auto px-4 py-8" aria-label="Products List">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div className="relative w-full md:max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden="true" />
             <Input 
               type="text" 
               placeholder="Search products..." 
-              className="pl-10"
+              className="pl-10 bg-white dark:bg-gray-800"
               value={searchTerm}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               aria-label="Search products"
             />
           </div>
           
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Product filters">
+          <div className="flex flex-wrap gap-2 justify-center md:justify-end" role="group" aria-label="Product filters">
             <Button 
               variant={selectedFilter === 'all' ? "default" : "outline"}
               onClick={() => setSelectedFilter('all')}
-              className={selectedFilter === 'all' ? "bg-blue-600" : ""}
+              className={selectedFilter === 'all' ? "bg-blue-600 hover:bg-blue-700" : ""}
               aria-pressed={selectedFilter === 'all'}
             >
               All Products
@@ -159,7 +158,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ category = 'all' }) =
             <Button 
               variant={selectedFilter === 'popular' ? "default" : "outline"}
               onClick={() => setSelectedFilter('popular')}
-              className={selectedFilter === 'popular' ? "bg-blue-600" : ""}
+              className={selectedFilter === 'popular' ? "bg-blue-600 hover:bg-blue-700" : ""}
               aria-pressed={selectedFilter === 'popular'}
             >
               <Filter className="h-4 w-4 mr-1" aria-hidden="true" /> Popular
@@ -167,7 +166,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ category = 'all' }) =
             <Button 
               variant={selectedFilter === 'under30' ? "default" : "outline"}
               onClick={() => setSelectedFilter('under30')}
-              className={selectedFilter === 'under30' ? "bg-blue-600" : ""}
+              className={selectedFilter === 'under30' ? "bg-blue-600 hover:bg-blue-700" : ""}
               aria-pressed={selectedFilter === 'under30'}
             >
               Under $30
@@ -175,7 +174,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ category = 'all' }) =
             <Button 
               variant={selectedFilter === 'multidevice' ? "default" : "outline"}
               onClick={() => setSelectedFilter('multidevice')}
-              className={selectedFilter === 'multidevice' ? "bg-blue-600" : ""}
+              className={selectedFilter === 'multidevice' ? "bg-blue-600 hover:bg-blue-700" : ""}
               aria-pressed={selectedFilter === 'multidevice'}
             >
               Multi-Device

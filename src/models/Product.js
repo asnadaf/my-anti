@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 const ProductSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please provide a product name'],
-    maxlength: [100, 'Name cannot be more than 100 characters'],
+    required: [true, 'Please provide a name for this product.'],
+    maxlength: [60, 'Name cannot be more than 60 characters'],
   },
   slug: {
     type: String,
@@ -13,69 +13,56 @@ const ProductSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: [true, 'Please provide a product description'],
-  },
-  price: {
-    type: Number,
-    required: [true, 'Please provide a product price'],
-    min: [0, 'Price cannot be negative'],
+    required: [true, 'Please provide a description for this product.'],
+    maxlength: [1000, 'Description cannot be more than 1000 characters'],
   },
   originalPrice: {
     type: Number,
+    required: [true, 'Please provide an original price for this product.'],
+    min: [0, 'Price cannot be negative'],
   },
-  discount: {
+  discountPrice: {
     type: Number,
-    min: [0, 'Discount cannot be negative'],
-    max: [100, 'Discount cannot be more than 100%'],
+    min: [0, 'Discount price cannot be negative'],
   },
-  brand: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Brand',
-    required: [true, 'Please provide a brand'],
+  image: {
+    type: String,
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
-    required: [true, 'Please provide a category'],
+    required: [true, 'Please provide a category for this product.'],
   },
-  subscription: {
-    devices: {
-      type: Number,
-      required: [true, 'Please provide the number of devices'],
-      enum: [1, 2, 3],
-    },
-    duration: {
-      type: String,
-      required: [true, 'Please provide the subscription duration'],
-      enum: ['6months', '1year', '2years', '3years'],
-    },
+  duration: { type: mongoose.Schema.Types.ObjectId, ref: 'Duration' },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active',
   },
   features: [{
     type: String,
   }],
-  image: {
+  stockCount: {
+    type: Number,
+    default: 0,
+  },
+  tag: {
     type: String,
+    enum: ['Featured', 'Top', 'Trending', 'Best Seller', 'New', 'None'],
+    default: 'None',
+  },  
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
-  popular: {
-    type: Boolean,
-    default: false,
+  updatedAt: {
+    type: Date,
+    default: Date.now,
   },
-  inStock: {
-    type: Boolean,
-    default: true,
-  },
-  user:{
-    type : Number
-  },
-  duration:{
-      type : String
-  }
-}, {
-  timestamps: true,
 });
 
-// Create slug from name before saving
-ProductSchema.pre('save', function (next) {
+// Create slug from name
+ProductSchema.pre('save', function(next) {
   this.slug = this.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -83,6 +70,16 @@ ProductSchema.pre('save', function (next) {
   next();
 });
 
+// Update updatedAt timestamp
+ProductSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
 
+// Update inStock based on stockCount
+ProductSchema.pre('save', function(next) {
+  this.inStock = this.stockCount > 0;
+  next();
+});
 
-export default mongoose.models.Product || mongoose.model('Product', ProductSchema); 
+export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

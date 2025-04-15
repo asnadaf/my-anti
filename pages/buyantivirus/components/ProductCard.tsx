@@ -12,7 +12,7 @@ interface Product {
   id: number | string;
   name: string;
   description: string;
-  price: number;
+  discountPrice: number;
   originalPrice: number;
   discount: number;
   devices: number;
@@ -37,7 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const {
     name,
     description,
-    price,
+    discountPrice,
     originalPrice,
     discount,
     devices,
@@ -90,8 +90,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
         
         <div className="flex items-center mb-4">
-          <span className="text-2xl font-bold text-gray-900">${price.toFixed(2)}</span>
-          {originalPrice > price && (
+          <span className="text-2xl font-bold text-gray-900">${discountPrice.toFixed(2)}</span>
+          {originalPrice > discountPrice && (
             <span className="ml-2 text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</span>
           )}
           {discount > 0 && (

@@ -1,6 +1,7 @@
 import { requireAuth } from '@lib/auth';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
+import Duration from '@models/Duration';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -18,10 +19,10 @@ export default async function handler(req, res) {
     await dbConnect();
 
     if (req.method === 'PUT') {
-      const { name, description, price, category, status, image, features } = req.body;
+      const { name, description, originalPrice, discountPrice, category, status, image, features, stockCount, duration, tag } = req.body;
 
-      if (!name || !description || !price || !category) {
-        return res.status(400).json({ message: 'Name, description, price, and category are required' });
+      if (!name || !description || !originalPrice || !category) {
+        return res.status(400).json({ message: 'Name, description, original price, and category are required' });
       }
 
       // Generate new slug if name has changed
@@ -33,13 +34,25 @@ export default async function handler(req, res) {
       const updateData = {
         name,
         description,
-        price: parseFloat(price),
+        originalPrice: parseFloat(originalPrice),
+        discountPrice: discountPrice ? parseFloat(discountPrice) : null,
         category,
         status: status || 'active',
         image: image || '',
         features: Array.isArray(features) ? features.filter(f => f && f.trim()) : [],
+        stockCount: parseInt(stockCount) || 0,
+        duration: duration || null,
+        tag: tag || 'None',
         slug: newSlug
       };
+
+      // Validate duration if provided
+      if (duration) {
+        const durationExists = await Duration.findById(duration);
+        if (!durationExists) {
+          return res.status(400).json({ message: 'Invalid duration selected' });
+        }
+      }
 
       const product = await Product.findByIdAndUpdate(
         id,
