@@ -47,6 +47,13 @@ export default function AdminDashboard({ stats, recentOrders }) {
             <p className="text-sm text-gray-500">Total users</p>
           </div>
         </Link>
+
+        <Link href="/admin/durations" className="block">
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <h2 className="text-xl font-semibold mb-2">Durations</h2>
+            <p className="text-sm text-gray-500">Manage durations</p>
+          </div>
+        </Link>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
