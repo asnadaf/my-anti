@@ -1,16 +1,14 @@
 "use client";
 
-import React from 'react';
-// import { Header } from "@/components/Header";
-// import Footer from "@/components/Footer";
-import ProductCard from "@/pages/buyantivirus/components/ProductCard";
-import { Button } from "@/components/ui/button";
-import { Filter, Search } from 'lucide-react';
-import { Input } from "@/components/ui/input";
-import { CategoryBar } from "@/pages/buyantivirus/components/CategoryBar";
+import React, { useState } from 'react';
 import Head from 'next/head';
+import ProductCard from './components/ProductCard';
+import { CategoryBar } from './components/CategoryBar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Filter, Search } from 'lucide-react';
 
-// Move this to a separate API route or data file
+// Dummy product data (move to external file or API later)
 const productsData = [
   {
     id: 1,
@@ -92,27 +90,11 @@ const productsData = [
   }
 ];
 
-interface ProductsContentProps {
-  productsData: Array<{
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    originalPrice: number;
-    discount: number;
-    devices: number;
-    duration: string;
-    features: string[];
-    image: string;
-    popular: boolean;
-  }>;
-}
+export default function BuyAntivirusPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('all');
 
-const ProductsContent: React.FC<ProductsContentProps> = ({ productsData }) => {
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [selectedFilter, setSelectedFilter] = React.useState('all');
-
-  const filteredProducts = productsData
+  const filteredProducts = (productsData || [])
     .filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase()))
     .filter(product => {
       if (selectedFilter === 'all') return true;
@@ -153,91 +135,72 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ productsData }) => {
           })}
         </script>
       </Head>
+
       <div className="min-h-screen flex flex-col">
-        {/* <Header /> */}
         <CategoryBar />
-        
-        {/* Hero section with gradient background */}
-        <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-12" aria-label="Products Hero">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl font-bold mb-4 text-white">
-              Genuine Antivirus License Keys
-            </h1>
-            <p className="text-lg text-blue-100 max-w-2xl mx-auto">
-              Browse our selection of 100% authentic license keys for top antivirus brands
-              with instant delivery and 24/7 support.
-            </p>
-          </div>
+
+        <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-12 text-white text-center">
+          <h1 className="text-4xl font-bold mb-4">Genuine Antivirus License Keys</h1>
+          <p className="text-lg text-blue-100 max-w-2xl mx-auto">
+            Browse 100% authentic antivirus keys from trusted brands. Instant delivery & 24/7 support.
+          </p>
         </section>
 
-        {/* Main content section with white background */}
-        <section className="container mx-auto px-4 py-12" aria-label="Products List">
+        <section className="container mx-auto px-4 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div className="relative w-full md:max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden="true" />
-              <Input 
-                type="text" 
-                placeholder="Search products..." 
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search products..."
                 className="pl-10"
                 value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                aria-label="Search products"
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Product filters">
-              <Button 
+
+            <div className="flex flex-wrap gap-2">
+              <Button
                 variant={selectedFilter === 'all' ? "default" : "outline"}
                 onClick={() => setSelectedFilter('all')}
-                className={selectedFilter === 'all' ? "bg-blue-600" : ""}
-                aria-pressed={selectedFilter === 'all'}
               >
                 All Products
               </Button>
-              <Button 
+              <Button
                 variant={selectedFilter === 'popular' ? "default" : "outline"}
                 onClick={() => setSelectedFilter('popular')}
-                className={selectedFilter === 'popular' ? "bg-blue-600" : ""}
-                aria-pressed={selectedFilter === 'popular'}
               >
-                <Filter className="h-4 w-4 mr-1" aria-hidden="true" /> Popular
+                <Filter className="h-4 w-4 mr-1" /> Popular
               </Button>
-              <Button 
+              <Button
                 variant={selectedFilter === 'under30' ? "default" : "outline"}
                 onClick={() => setSelectedFilter('under30')}
-                className={selectedFilter === 'under30' ? "bg-blue-600" : ""}
-                aria-pressed={selectedFilter === 'under30'}
               >
                 Under $30
               </Button>
-              <Button 
+              <Button
                 variant={selectedFilter === 'multidevice' ? "default" : "outline"}
                 onClick={() => setSelectedFilter('multidevice')}
-                className={selectedFilter === 'multidevice' ? "bg-blue-600" : ""}
-                aria-pressed={selectedFilter === 'multidevice'}
               >
                 Multi-Device
               </Button>
             </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" role="list">
-            {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-16" role="status">
+
+          {filteredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
               <h3 className="text-2xl font-semibold mb-2">No products found</h3>
-              <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
+              <p className="text-gray-600">Try adjusting your search or filters.</p>
             </div>
           )}
         </section>
-        {/* <Footer /> */}
       </div>
     </>
   );
-};
-
-export default ProductsContent; 
+}
