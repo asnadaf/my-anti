@@ -10,6 +10,7 @@ import { fetchProductBySlug } from '../../../lib/products';
 import { GetServerSideProps } from 'next';
 import { useCart } from '../../../contexts/CartContext';
 import { useToast } from '../../../components/ui/use-toast';
+import ProductActionButtons from '../../../components/cart/ProductActionButtons';
 
 interface Product {
   _id: string;
@@ -246,20 +247,7 @@ export default function ProductDetailsPage({ product, error }: ProductDetailsPag
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex gap-4">
-                <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={handleAddToCart}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Add to Cart
-                </Button>
-                <Link href="/buyantivirus/cart" className="flex-1">
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                    Buy Now
-                  </Button>
-                </Link>
-              </div>
+              <ProductActionButtons product={product} />
             </div>
           </div>
         </div>
