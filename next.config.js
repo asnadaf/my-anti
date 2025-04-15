@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost','picsum.photos'],
+    domains: ['localhost','picsum.photos','fastly.picsum.photos'],
   },
   webpack: (config) => {
     config.resolve.alias = {

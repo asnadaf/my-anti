@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Sun, Moon, ShoppingCart, User, LogOut } from 'lucide-react';
 import { logout } from '@lib/auth';
+import Footer from '../components/Footer';
 
 export default function Layout({ children }) {
   const { theme, setTheme } = useTheme();
@@ -111,45 +112,8 @@ export default function Layout({ children }) {
       </header>
 
       <main className="flex-grow">{children}</main>
-
-      <footer className="bg-background border-t">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Products</h3>
-              <ul className="space-y-2">
-                <li><Link href="/buyantivirus" className="text-muted-foreground hover:text-foreground">All Products</Link></li>
-                <li><Link href="/buyantivirus/support" className="text-muted-foreground hover:text-foreground">Support</Link></li>
-                <li><Link href="/buyantivirus/faq" className="text-muted-foreground hover:text-foreground">FAQ</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Company</h3>
-              <ul className="space-y-2">
-                <li><Link href="/buyantivirus/about" className="text-muted-foreground hover:text-foreground">About Us</Link></li>
-                <li><Link href="/buyantivirus/contact" className="text-muted-foreground hover:text-foreground">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="text-muted-foreground hover:text-foreground">Terms of Service</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Connect</h3>
-              <ul className="space-y-2">
-                <li><Link href="https://twitter.com" className="text-muted-foreground hover:text-foreground">Twitter</Link></li>
-                <li><Link href="https://facebook.com" className="text-muted-foreground hover:text-foreground">Facebook</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t text-center text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
+      
     </div>
   );
 } 

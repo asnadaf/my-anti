@@ -6,9 +6,32 @@ import ProductSection from "./components/ProductSection";
 import BenefitsSection from "./components/BenefitsSection";
 import TrustSection from "./components/TrustSection";
 import FaqSection from "./components/FaqSection";
-import Footer from "@components/Footer";
+import { fetchTopProduct, fetchFeaturedProducts } from '@lib/products';
 
-export default function BuyAntivirusPage() {
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  originalPrice: number;
+  discountPrice: number;
+  category: {
+    name: string;
+    _id: string;
+  };
+  features: string[];
+  image: string;
+  tag: string;
+  duration: string;
+  devices: number;
+  slug: string;
+}
+
+interface BuyAntivirusPageProps {
+  topProduct: Product | null;
+  featuredProducts: Product[];
+}
+
+export default function BuyAntivirusPage({ topProduct, featuredProducts }: BuyAntivirusPageProps) {
   // Structured data for better SEO
   const structuredData = {
     "@context": "https://schema.org",
@@ -21,50 +44,21 @@ export default function BuyAntivirusPage() {
   const productStructuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": [
-      {
-        "@type": "Product",
-        "name": "Norton 360 Deluxe",
-        "description": "Complete protection for up to 5 devices with secure VPN and dark web monitoring.",
-        "brand": {
-          "@type": "Brand",
-          "name": "Norton"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": "29.99",
-          "priceCurrency": "USD"
-        }
+    "itemListElement": featuredProducts.map((product, index) => ({
+      "@type": "Product",
+      "name": product.name,
+      "description": product.description,
+      "brand": {
+        "@type": "Brand",
+        "name": product.category.name
       },
-      {
-        "@type": "Product",
-        "name": "McAfee Total Protection",
-        "description": "Advanced security suite with identity protection for up to 10 devices.",
-        "brand": {
-          "@type": "Brand",
-          "name": "McAfee"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": "34.99",
-          "priceCurrency": "USD"
-        }
-      },
-      {
-        "@type": "Product",
-        "name": "Bitdefender Total Security",
-        "description": "Premium protection against all cyber threats for up to 5 devices.",
-        "brand": {
-          "@type": "Brand",
-          "name": "Bitdefender"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": "32.99",
-          "priceCurrency": "USD"
-        }
+      "offers": {
+        "@type": "Offer",
+        "price": product.discountPrice.toString(),
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
       }
-    ]
+    }))
   };
 
   return (
@@ -95,7 +89,6 @@ export default function BuyAntivirusPage() {
         <meta name="language" content="English" />
         <meta name="revisit-after" content="7 days" />
         <meta name="author" content="SecureKeyMaster" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         
         {/* Canonical URL */}
         <link rel="canonical" href="https://securekeymaster.com/buyantivirus" />
@@ -116,22 +109,28 @@ export default function BuyAntivirusPage() {
       </Head>
 
       <main className="flex min-h-screen flex-col">
-        <HeroSection />
-        <ProductSection />
+        <HeroSection product={topProduct} />
+        <ProductSection products={featuredProducts} />
         <BenefitsSection />
         <TestimonialsSection />
         <TrustSection />
         <FaqSection />
-        <Footer />
       </main>
     </>
   );
 }
 
 // Server-side rendering with getServerSideProps
-export async function getServerSideProps(context: any) {
-  // You can fetch data here if needed
+export async function getServerSideProps() {
+  const [topProduct, featuredProducts] = await Promise.all([
+    fetchTopProduct(),
+    fetchFeaturedProducts()
+  ]);
+
   return {
-    props: {}, // will be passed to the page component as props
+    props: {
+      topProduct,
+      featuredProducts
+    },
   };
 }
