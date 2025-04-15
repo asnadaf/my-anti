@@ -35,15 +35,15 @@ export function FAQPage() {
     <div className="min-h-screen flex flex-col bg-background">
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-16">
-          <h1 className="text-4xl font-bold text-center mb-12">Frequently Asked Questions</h1>
+          <h1 className="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-foreground">Frequently Asked Questions</h1>
           
           <Accordion type="single" collapsible className="max-w-3xl mx-auto">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-lg font-semibold">
+              <AccordionItem key={index} value={`item-${index}`} className="border-gray-200 dark:border-border">
+                <AccordionTrigger className="text-lg font-semibold text-gray-900 dark:text-foreground hover:text-blue-600 dark:hover:text-blue-400">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+                <AccordionContent className="text-gray-600 dark:text-muted-foreground">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

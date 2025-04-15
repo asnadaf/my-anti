@@ -22,7 +22,7 @@ export function AboutPage() {
       <div className="min-h-screen flex flex-col bg-background">
         {/* <Header /> */}
         <main className="flex-grow">
-          <section className="bg-security-gradient py-16 dark:bg-gradient-to-br dark:from-blue-900 dark:to-indigo-900" aria-label="About Hero">
+          <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-16 dark:from-blue-900 dark:to-indigo-900" aria-label="About Hero">
             <div className="container mx-auto px-4 text-center">
               <Shield size={64} className="mx-auto mb-6 text-white" aria-hidden="true" />
               <h1 className="text-3xl md:text-5xl font-bold text-white mb-6">About SecureKeyMaster</h1>
@@ -36,8 +36,8 @@ export function AboutPage() {
           <section className="py-16" aria-label="Our Story">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
-                <h2 className="text-3xl font-bold mb-6 text-foreground">Our Story</h2>
-                <article className="prose prose-lg max-w-none text-muted-foreground dark:prose-invert">
+                <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-foreground">Our Story</h2>
+                <article className="prose prose-lg max-w-none text-gray-600 dark:text-muted-foreground dark:prose-invert">
                   <p>
                     Founded in 2015, SecureKeyMaster began with a simple mission: to make premium digital security accessible to everyone. 
                     We noticed that many users were foregoing essential security software due to high prices, which left them vulnerable to cyber threats.
@@ -61,7 +61,7 @@ export function AboutPage() {
           
           <section className="py-16" aria-label="Our Values">
             <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold mb-12 text-center text-foreground">Our Values</h2>
+              <h2 className="text-3xl font-bold mb-12 text-center text-gray-900 dark:text-foreground">Our Values</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[
                   {
@@ -97,12 +97,12 @@ export function AboutPage() {
                 ].map((value, index) => {
                   const Icon = value.icon;
                   return (
-                    <article key={index} className="bg-card p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 dark:border dark:border-border">
-                      <div className="bg-security-lightBlue p-4 rounded-full inline-block mb-4">
-                        <Icon size={32} className="text-security-blue dark:text-blue-400" aria-hidden="true" />
+                    <article key={index} className="bg-white dark:bg-card p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-border">
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-full inline-block mb-4">
+                        <Icon size={32} className="text-blue-600 dark:text-blue-400" aria-hidden="true" />
                       </div>
-                      <h3 className="text-xl font-semibold mb-4 text-foreground">{value.title}</h3>
-                      <p className="text-muted-foreground">
+                      <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-foreground">{value.title}</h3>
+                      <p className="text-gray-600 dark:text-muted-foreground">
                         {value.description}
                       </p>
                     </article>
@@ -115,16 +115,16 @@ export function AboutPage() {
           <section className="py-16" aria-label="Our Promise">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-3xl font-bold mb-6 text-foreground">Our Promise to You</h2>
-                <p className="text-xl text-muted-foreground mb-8">
+                <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-foreground">Our Promise to You</h2>
+                <p className="text-xl text-gray-600 dark:text-muted-foreground mb-8">
                   At SecureKeyMaster, we're committed to providing you with genuine antivirus license keys at the best prices,
                   backed by exceptional service and support.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <Button asChild className="bg-security-blue hover:bg-security-blue/90 dark:bg-blue-600 dark:hover:bg-blue-700">
+                  <Button asChild className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">
                     <a href="/products" aria-label="Browse our products">Browse Products</a>
                   </Button>
-                  <Button asChild variant="outline">
+                  <Button asChild variant="outline" className="border-gray-300 dark:border-border">
                     <a href="/contact" aria-label="Contact our support team">Contact Us</a>
                   </Button>
                 </div>

@@ -24,7 +24,7 @@ export default function ContactPage() {
       <div className="min-h-screen flex flex-col bg-background">
         {/* <Header /> */}
         <main className="flex-grow">
-          <section className="bg-security-gradient py-16 dark:bg-gradient-to-br dark:from-blue-900 dark:to-indigo-900" aria-label="Contact Hero">
+          <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-16 dark:bg-gradient-to-br dark:from-blue-900 dark:to-indigo-900" aria-label="Contact Hero">
             <div className="container mx-auto px-4 text-center">
               <Mail size={64} className="mx-auto mb-6 text-white" aria-hidden="true" />
               <h1 className="text-3xl md:text-5xl font-bold text-white mb-6">Contact Us</h1>
@@ -40,11 +40,11 @@ export default function ContactPage() {
               <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Contact Form */}
-                  <article className="bg-card p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 dark:border dark:border-border">
-                    <h2 className="text-2xl font-bold mb-6 text-foreground">Send us a Message</h2>
+                  <article className="bg-white dark:bg-card p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 dark:border dark:border-border">
+                    <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-foreground">Send us a Message</h2>
                     <form className="space-y-6" aria-label="Contact form">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-foreground mb-1">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-foreground mb-1">
                           Name
                         </label>
                         <Input
@@ -56,7 +56,7 @@ export default function ContactPage() {
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-foreground mb-1">
                           Email
                         </label>
                         <Input
@@ -69,7 +69,7 @@ export default function ContactPage() {
                         />
                       </div>
                       <div>
-                        <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-1">
+                        <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-foreground mb-1">
                           Subject
                         </label>
                         <Input
@@ -81,7 +81,7 @@ export default function ContactPage() {
                         />
                       </div>
                       <div>
-                        <label htmlFor="message" className="block text-sm font-medium text-foreground mb-1">
+                        <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-foreground mb-1">
                           Message
                         </label>
                         <Textarea
@@ -93,7 +93,7 @@ export default function ContactPage() {
                         />
                       </div>
                       <Button 
-                        className="w-full bg-security-blue hover:bg-security-blue/90 dark:bg-blue-600 dark:hover:bg-blue-700"
+                        className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
                         type="submit"
                         aria-label="Submit contact form"
                       >
@@ -134,18 +134,18 @@ export default function ContactPage() {
                       return (
                         <article
                           key={index}
-                          className="bg-card p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 dark:border dark:border-border"
+                          className="bg-white dark:bg-card p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 dark:border dark:border-border"
                         >
                           <div className="flex items-start space-x-4">
-                            <div className="bg-security-lightBlue p-3 rounded-full">
-                              <Icon className="h-6 w-6 text-security-blue dark:text-blue-400" aria-hidden="true" />
+                            <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                              <Icon className="h-6 w-6 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                             </div>
                             <div>
-                              <h3 className="text-lg font-semibold text-foreground mb-1">
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground mb-1">
                                 {item.title}
                               </h3>
-                              <p className="text-muted-foreground mb-1">{item.content}</p>
-                              <p className="text-sm text-muted-foreground">{item.description}</p>
+                              <p className="text-gray-600 dark:text-muted-foreground mb-1">{item.content}</p>
+                              <p className="text-sm text-gray-500 dark:text-muted-foreground">{item.description}</p>
                             </div>
                           </div>
                         </article>
