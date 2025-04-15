@@ -2,6 +2,7 @@ import { ThemeProvider } from 'next-themes';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
 import { useEffect } from 'react';
+import { Toaster } from "@/components/ui/toaster";
 
 // Global error handler
 const handleError = (error, errorInfo) => {
@@ -52,6 +53,7 @@ export default function App({ Component, pageProps }) {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Layout>
         <Component {...pageProps} />
+        <Toaster />
       </Layout>
     </ThemeProvider>
   );

@@ -1,96 +1,106 @@
 "use client";
 
 import React from 'react';
-// import { Header } from "@/components/Header";
-// import Footer from "@/components/Footer";
-import ProductCard from "@/pages/buyantivirus/components/ProductCard";
+import { Header } from "@/components/Header";
+import Footer from "@/components/Footer";
+import { ProductCard } from '@/components/products/ProductCard';
 import { Button } from "@/components/ui/button";
 import { Filter, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
-import { CategoryBar } from "@/pages/buyantivirus/components/CategoryBar";
+import { CategoryBar } from "@/components/CategoryBar";
 import Head from 'next/head';
 
 // Move this to a separate API route or data file
-const productsData = [
-  {
-    id: 1,
-    name: "Norton 360 Deluxe",
-    description: "Complete protection for up to 5 devices with secure VPN and dark web monitoring.",
-    price: 29.99,
-    originalPrice: 79.99,
-    discount: 63,
-    devices: 5,
-    duration: "1 Year",
-    features: ["Real-time threat protection", "Secure VPN", "Password Manager", "Dark Web Monitoring", "50GB Cloud Backup"],
-    image: "/images/products/norton.png",
-    popular: true
-  },
-  {
-    id: 2,
-    name: "McAfee Total Protection",
-    description: "Advanced security suite with identity protection for up to 10 devices.",
-    price: 34.99,
-    originalPrice: 89.99,
-    discount: 61,
-    devices: 10,
-    duration: "1 Year",
-    features: ["Virus Protection", "Identity Monitoring", "Secure VPN", "Password Manager", "File Shredder"],
-    image: "/images/products/mcafee.png",
-    popular: false
-  },
-  {
-    id: 3,
-    name: "Bitdefender Total Security",
-    description: "Premium protection against all cyber threats for up to 5 devices.",
-    price: 32.99,
-    originalPrice: 84.99,
-    discount: 61,
-    devices: 5,
-    duration: "1 Year",
-    features: ["Anti-Malware", "Multi-Layer Ransomware Protection", "Webcam Protection", "Anti-Phishing", "Anti-Fraud"],
-    image: "/images/products/bitdefender.png",
-    popular: false
-  },
-  {
-    id: 4,
-    name: "Kaspersky Internet Security",
-    description: "Essential protection for your privacy, money and kids online.",
-    price: 24.99,
-    originalPrice: 59.99,
-    discount: 58,
-    devices: 3,
-    duration: "1 Year",
-    features: ["Virus Protection", "Safe Money Browser", "VPN (300MB/day)", "Privacy Protection", "Parental Controls"],
-    image: "/images/products/kaspersky.png",
-    popular: false
-  },
-  {
-    id: 5,
-    name: "ESET Smart Security Premium",
-    description: "Advanced security solution with password manager and encryption.",
-    price: 39.99,
-    originalPrice: 79.99,
-    discount: 50,
-    devices: 5,
-    duration: "1 Year",
-    features: ["Antivirus", "Firewall", "Banking Protection", "Password Manager", "File Encryption"],
-    image: "/images/products/eset.png",
-    popular: false
-  },
-  {
-    id: 6,
-    name: "Avast Premium Security",
-    description: "All-in-one protection against viruses and privacy threats.",
-    price: 27.99,
-    originalPrice: 69.99,
-    discount: 60,
-    devices: 10,
-    duration: "1 Year",
-    features: ["Advanced Antivirus", "Ransomware Protection", "Wi-Fi Inspector", "Real Site", "Firewall"],
-    image: "/images/products/avast.png",
-    popular: false
-  }
-];
+export async function getStaticProps() {
+  const productsData = [
+    {
+      id: 1,
+      name: "Norton 360 Deluxe",
+      description: "Complete protection for up to 5 devices with secure VPN and dark web monitoring.",
+      price: 29.99,
+      originalPrice: 79.99,
+      discount: 63,
+      devices: 5,
+      duration: "1 Year",
+      features: ["Real-time threat protection", "Secure VPN", "Password Manager", "Dark Web Monitoring", "50GB Cloud Backup"],
+      image: "/images/products/norton.png",
+      popular: true
+    },
+    {
+      id: 2,
+      name: "McAfee Total Protection",
+      description: "Advanced security suite with identity protection for up to 10 devices.",
+      price: 34.99,
+      originalPrice: 89.99,
+      discount: 61,
+      devices: 10,
+      duration: "1 Year",
+      features: ["Virus Protection", "Identity Monitoring", "Secure VPN", "Password Manager", "File Shredder"],
+      image: "/images/products/mcafee.png",
+      popular: false
+    },
+    {
+      id: 3,
+      name: "Bitdefender Total Security",
+      description: "Premium protection against all cyber threats for up to 5 devices.",
+      price: 32.99,
+      originalPrice: 84.99,
+      discount: 61,
+      devices: 5,
+      duration: "1 Year",
+      features: ["Anti-Malware", "Multi-Layer Ransomware Protection", "Webcam Protection", "Anti-Phishing", "Anti-Fraud"],
+      image: "/images/products/bitdefender.png",
+      popular: false
+    },
+    {
+      id: 4,
+      name: "Kaspersky Internet Security",
+      description: "Essential protection for your privacy, money and kids online.",
+      price: 24.99,
+      originalPrice: 59.99,
+      discount: 58,
+      devices: 3,
+      duration: "1 Year",
+      features: ["Virus Protection", "Safe Money Browser", "VPN (300MB/day)", "Privacy Protection", "Parental Controls"],
+      image: "/images/products/kaspersky.png",
+      popular: false
+    },
+    {
+      id: 5,
+      name: "ESET Smart Security Premium",
+      description: "Advanced security solution with password manager and encryption.",
+      price: 39.99,
+      originalPrice: 79.99,
+      discount: 50,
+      devices: 5,
+      duration: "1 Year",
+      features: ["Antivirus", "Firewall", "Banking Protection", "Password Manager", "File Encryption"],
+      image: "/images/products/eset.png",
+      popular: false
+    },
+    {
+      id: 6,
+      name: "Avast Premium Security",
+      description: "All-in-one protection against viruses and privacy threats.",
+      price: 27.99,
+      originalPrice: 69.99,
+      discount: 60,
+      devices: 10,
+      duration: "1 Year",
+      features: ["Advanced Antivirus", "Ransomware Protection", "Wi-Fi Inspector", "Real Site", "Firewall"],
+      image: "/images/products/avast.png",
+      popular: false
+    }
+  ];
+
+  return {
+    props: {
+      productsData,
+    },
+    // Revalidate every hour
+    revalidate: 3600,
+  };
+}
 
 interface ProductsContentProps {
   productsData: Array<{
@@ -98,12 +108,7 @@ interface ProductsContentProps {
     name: string;
     description: string;
     price: number;
-    originalPrice: number;
-    discount: number;
     devices: number;
-    duration: string;
-    features: string[];
-    image: string;
     popular: boolean;
   }>;
 }
@@ -154,7 +159,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ productsData }) => {
         </script>
       </Head>
       <div className="min-h-screen flex flex-col">
-        {/* <Header /> */}
+        <Header />
         <CategoryBar />
         
         {/* Hero section with gradient background */}
@@ -234,7 +239,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ productsData }) => {
             </div>
           )}
         </section>
-        {/* <Footer /> */}
+        <Footer />
       </div>
     </>
   );

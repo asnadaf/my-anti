@@ -49,8 +49,8 @@ export default function Layout({ children }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white dark:bg-gray-900 shadow-sm">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <header className="bg-background border-b">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
@@ -58,35 +58,44 @@ export default function Layout({ children }) {
                 <span className="text-xl font-bold">Your Logo</span>
               </Link>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link href="/categories" className="nav-link">
-                  Categories
-                </Link>
-                <Link href="/products" className="nav-link">
+                <Link href="/buyantivirus" className="nav-link">
                   Products
+                </Link>
+                <Link href="/buyantivirus/about" className="nav-link">
+                  About
+                </Link>
+                <Link href="/buyantivirus/contact" className="nav-link">
+                  Contact
+                </Link>
+                <Link href="/buyantivirus/support" className="nav-link">
+                  Support
+                </Link>
+                <Link href="/buyantivirus/faq" className="nav-link">
+                  FAQ
                 </Link>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="p-2 rounded-lg hover:bg-accent"
               >
                 {mounted && theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              <Link href="/cart" className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+              <Link href="/cart" className="p-2 rounded-lg hover:bg-accent">
                 <ShoppingCart size={20} />
               </Link>
               {isAuthenticated ? (
                 <button
                   onClick={handleLogout}
-                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="p-2 rounded-lg hover:bg-accent"
                   title="Logout"
                   disabled={isLoading}
                 >
                   <LogOut size={20} />
                 </button>
               ) : (
-                <Link href="/auth/login" className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link href="/auth/login" className="p-2 rounded-lg hover:bg-accent">
                   <User size={20} />
                 </Link>
               )}
@@ -97,41 +106,41 @@ export default function Layout({ children }) {
 
       <main className="flex-grow">{children}</main>
 
-      <footer className="bg-white dark:bg-gray-900">
+      <footer className="bg-background border-t">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">About Us</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Your company description here.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <h3 className="text-lg font-semibold mb-4">Products</h3>
               <ul className="space-y-2">
-                <li>
-                  <Link href="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                    Terms of Service
-                  </Link>
-                </li>
+                <li><Link href="/buyantivirus" className="text-muted-foreground hover:text-foreground">All Products</Link></li>
+                <li><Link href="/buyantivirus/support" className="text-muted-foreground hover:text-foreground">Support</Link></li>
+                <li><Link href="/buyantivirus/faq" className="text-muted-foreground hover:text-foreground">FAQ</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">Contact</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Email: contact@example.com
-              </p>
+              <h3 className="text-lg font-semibold mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li><Link href="/buyantivirus/about" className="text-muted-foreground hover:text-foreground">About Us</Link></li>
+                <li><Link href="/buyantivirus/contact" className="text-muted-foreground hover:text-foreground">Contact</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-muted-foreground hover:text-foreground">Terms of Service</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Connect</h3>
+              <ul className="space-y-2">
+                <li><Link href="https://twitter.com" className="text-muted-foreground hover:text-foreground">Twitter</Link></li>
+                <li><Link href="https://facebook.com" className="text-muted-foreground hover:text-foreground">Facebook</Link></li>
+              </ul>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-center text-gray-500 dark:text-gray-400">
-              © {new Date().getFullYear()} Your Company. All rights reserved.
-            </p>
+          <div className="mt-8 pt-8 border-t text-center text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
           </div>
         </div>
       </footer>

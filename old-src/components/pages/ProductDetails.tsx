@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-// import { Header } from "@/components/Header";
-// import Footer from "@/components/Footer";
+import { Header } from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Shield, CheckCircle2, Clock, Zap, Star } from 'lucide-react';
 import Image from 'next/image';
@@ -45,10 +45,10 @@ const product: Product = {
   reviews: 1250
 };
 
-export default function ProductDetails() {
+export function ProductDetails() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* <Header /> */}
+      <Header />
       
       <main className="flex-grow">
         {/* Hero section with gradient background */}
@@ -174,7 +174,7 @@ export default function ProductDetails() {
         </div>
       </main>
 
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 } 
