@@ -7,11 +7,11 @@ import { Toaster } from "../components/ui/toaster";
 // Global error handler
 const handleError = (error, errorInfo) => {
   console.error('Global Error:', error);
-  console.error('Error Info:', errorInfo);
+  // console.error('Error Info:', errorInfo);
   
   // You can add additional error reporting here (e.g., send to error tracking service)
   if (process.env.NODE_ENV === 'development') {
-    debugger; // This will pause execution in development mode
+    // debugger; // This will pause execution in development mode
   }
 };
 
@@ -19,7 +19,7 @@ const handleError = (error, errorInfo) => {
 const handleUnhandledRejection = (event) => {
   console.error('Unhandled Promise Rejection:', event.reason);
   if (process.env.NODE_ENV === 'development') {
-    debugger;
+    // debugger;
   }
 };
 

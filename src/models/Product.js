@@ -8,7 +8,7 @@ const ProductSchema = new mongoose.Schema({
   },
   slug: {
     type: String,
-    required: [true, 'Please provide a product slug'],
+    required: true,
     unique: true,
   },
   description: {
@@ -22,66 +22,67 @@ const ProductSchema = new mongoose.Schema({
   },
   originalPrice: {
     type: Number,
-    required: false,
   },
   discount: {
     type: Number,
-    required: false,
     min: [0, 'Discount cannot be negative'],
     max: [100, 'Discount cannot be more than 100%'],
   },
-  devices: {
-    type: Number,
-    required: [true, 'Please provide the number of devices'],
-    min: [1, 'Number of devices must be at least 1'],
-  },
-  duration: {
-    type: String,
-    required: [true, 'Please provide the license duration'],
-    enum: ['1 Month', '3 Months', '6 Months', '1 Year', '2 Years', '3 Years'],
-  },
-  features: [{
-    type: String,
-  }],
-  image: {
-    type: String,
-    required: false,
-  },
-  popular: {
-    type: Boolean,
-    default: false,
-  },
   brand: {
-    type: String,
-    required: [true, 'Please provide the brand name'],
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Brand',
+    required: [true, 'Please provide a brand'],
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
     required: [true, 'Please provide a category'],
   },
-  rating: {
-    type: Number,
-    required: false,
-    min: [0, 'Rating cannot be less than 0'],
-    max: [5, 'Rating cannot be more than 5'],
+  subscription: {
+    devices: {
+      type: Number,
+      required: [true, 'Please provide the number of devices'],
+      enum: [1, 2, 3],
+    },
+    duration: {
+      type: String,
+      required: [true, 'Please provide the subscription duration'],
+      enum: ['6months', '1year', '2years', '3years'],
+    },
   },
-  reviews: {
-    type: Number,
-    required: false,
-    default: 0,
+  features: [{
+    type: String,
+  }],
+  image: {
+    type: String,
+  },
+  popular: {
+    type: Boolean,
+    default: false,
   },
   inStock: {
     type: Boolean,
     default: true,
   },
-  sku: {
-    type: String,
-    required: [true, 'Please provide a SKU'],
-    unique: true,
+  user:{
+    type : Number
   },
+  duration:{
+      type : String
+  }
 }, {
   timestamps: true,
 });
+
+// Create slug from name before saving
+ProductSchema.pre('save', function (next) {
+  this.slug = this.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+  next();
+});
+
+
 
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema); 

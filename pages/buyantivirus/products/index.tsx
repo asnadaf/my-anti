@@ -7,94 +7,51 @@ import CategoryBar from '../components/CategoryBar';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Filter, Search } from 'lucide-react';
+import { fetchProducts } from '../../../lib/products';
+import { fetchCategories } from '../../../lib/categories';
 
-// Dummy product data (move to external file or API later)
-const productsData = [
-  {
-    id: 1,
-    name: "Norton 360 Deluxe",
-    description: "Complete protection for up to 5 devices with secure VPN and dark web monitoring.",
-    price: 29.99,
-    originalPrice: 79.99,
-    discount: 63,
-    devices: 5,
-    duration: "1 Year",
-    features: ["Real-time threat protection", "Secure VPN", "Password Manager", "Dark Web Monitoring", "50GB Cloud Backup"],
-    image: "/images/products/norton.png",
-    popular: true
-  },
-  {
-    id: 2,
-    name: "McAfee Total Protection",
-    description: "Advanced security suite with identity protection for up to 10 devices.",
-    price: 34.99,
-    originalPrice: 89.99,
-    discount: 61,
-    devices: 10,
-    duration: "1 Year",
-    features: ["Virus Protection", "Identity Monitoring", "Secure VPN", "Password Manager", "File Shredder"],
-    image: "/images/products/mcafee.png",
-    popular: false
-  },
-  {
-    id: 3,
-    name: "Bitdefender Total Security",
-    description: "Premium protection against all cyber threats for up to 5 devices.",
-    price: 32.99,
-    originalPrice: 84.99,
-    discount: 61,
-    devices: 5,
-    duration: "1 Year",
-    features: ["Anti-Malware", "Multi-Layer Ransomware Protection", "Webcam Protection", "Anti-Phishing", "Anti-Fraud"],
-    image: "/images/products/bitdefender.png",
-    popular: false
-  },
-  {
-    id: 4,
-    name: "Kaspersky Internet Security",
-    description: "Essential protection for your privacy, money and kids online.",
-    price: 24.99,
-    originalPrice: 59.99,
-    discount: 58,
-    devices: 3,
-    duration: "1 Year",
-    features: ["Virus Protection", "Safe Money Browser", "VPN (300MB/day)", "Privacy Protection", "Parental Controls"],
-    image: "/images/products/kaspersky.png",
-    popular: false
-  },
-  {
-    id: 5,
-    name: "ESET Smart Security Premium",
-    description: "Advanced security solution with password manager and encryption.",
-    price: 39.99,
-    originalPrice: 79.99,
-    discount: 50,
-    devices: 5,
-    duration: "1 Year",
-    features: ["Antivirus", "Firewall", "Banking Protection", "Password Manager", "File Encryption"],
-    image: "/images/products/eset.png",
-    popular: false
-  },
-  {
-    id: 6,
-    name: "Avast Premium Security",
-    description: "All-in-one protection against viruses and privacy threats.",
-    price: 27.99,
-    originalPrice: 69.99,
-    discount: 60,
-    devices: 10,
-    duration: "1 Year",
-    features: ["Advanced Antivirus", "Ransomware Protection", "Wi-Fi Inspector", "Real Site", "Firewall"],
-    image: "/images/products/avast.png",
-    popular: false
-  }
-];
+// Define the Product interface
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  devices: number;
+  duration: string;
+  features: string[];
+  image: string;
+  popular: boolean;
+  slug?: string;
+  brand?: string;
+  category?: string;
+  rating?: number;
+  reviews?: number;
+  inStock?: boolean;
+  sku?: string;
+}
 
-export default function BuyAntivirusPage() {
+// Define the Category interface
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+}
+
+interface ProductsPageProps {
+  products: Product[];
+  categories: Category[];
+}
+
+export default function BuyAntivirusPage({ products: initialProducts, categories }: ProductsPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [products, setProducts] = useState(initialProducts);
 
-  const filteredProducts = (productsData || [])
+  const filteredProducts = products
     .filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase()))
     .filter(product => {
       if (selectedFilter === 'all') return true;
@@ -103,6 +60,38 @@ export default function BuyAntivirusPage() {
       if (selectedFilter === 'multidevice') return product.devices > 3;
       return true;
     });
+
+  // Generate structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": filteredProducts.map((product, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Product",
+        "name": product.name,
+        "description": product.description,
+        "brand": {
+          "@type": "Brand",
+          "name": product.brand || "SecureKeyMaster"
+        },
+        "sku": product.sku,
+        "offers": {
+          "@type": "Offer",
+          "price": product.price.toString(),
+          "priceCurrency": "USD",
+          "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        },
+        "aggregateRating": product.rating ? {
+          "@type": "AggregateRating",
+          "ratingValue": product.rating.toString(),
+          "reviewCount": product.reviews?.toString() || "0"
+        } : undefined
+      }
+    }))
+  };
 
   return (
     <>
@@ -114,30 +103,14 @@ export default function BuyAntivirusPage() {
         <meta property="og:description" content="Get authentic antivirus license keys with instant delivery and 24/7 support." />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://securekeymaster.com/products" />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "ItemList",
-            "itemListElement": productsData.map((product, index) => ({
-              "@type": "ListItem",
-              "position": index + 1,
-              "item": {
-                "@type": "Product",
-                "name": product.name,
-                "description": product.description,
-                "offers": {
-                  "@type": "Offer",
-                  "price": product.price.toString(),
-                  "priceCurrency": "USD"
-                }
-              }
-            }))
-          })}
-        </script>
+        <script 
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </Head>
 
       <div className="min-h-screen flex flex-col">
-        <CategoryBar />
+        <CategoryBar categories={categories} />
 
         <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-12 text-white text-center">
           <h1 className="text-4xl font-bold mb-4">Genuine Antivirus License Keys</h1>
@@ -203,4 +176,30 @@ export default function BuyAntivirusPage() {
       </div>
     </>
   );
+}
+
+// Server-side rendering with getServerSideProps
+export async function getServerSideProps() {
+  try {
+    // Fetch products and categories from the database
+    const [products, categories] = await Promise.all([
+      fetchProducts(),
+      fetchCategories()
+    ]);
+    
+    return {
+      props: {
+        products,
+        categories,
+      },
+    };
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+    return {
+      props: {
+        products: [],
+        categories: [],
+      },
+    };
+  }
 }

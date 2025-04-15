@@ -59,7 +59,7 @@ const ProductSchema = new mongoose.Schema({
   },
 });
 
-// Create slug from name before saving
+// Create slug from name
 ProductSchema.pre('save', function(next) {
   this.slug = this.name
     .toLowerCase()
@@ -68,7 +68,7 @@ ProductSchema.pre('save', function(next) {
   next();
 });
 
-// Update updatedAt timestamp before saving
+// Update updatedAt timestamp
 ProductSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
@@ -80,4 +80,4 @@ ProductSchema.pre('save', function(next) {
   next();
 });
 
-export default mongoose.models.Product || mongoose.model('Product', ProductSchema); 
+export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

@@ -17,6 +17,10 @@ const licenseKeySchema = new mongoose.Schema(
       enum: ['active', 'inactive', 'used'],
       default: 'active',
     },
+    sold: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
