@@ -1,4 +1,4 @@
-import ContactPage from "@/pages/buyantivirus/ContactPage";
+import ContactPage from "../ContactPage";
 import Head from 'next/head';
 
 export default function Contact() {

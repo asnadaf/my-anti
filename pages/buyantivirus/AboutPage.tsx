@@ -3,11 +3,11 @@
 import React from 'react';
 // import { Header } from "@/components/Header";
 // import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 import { Shield, Users, Award, Globe, ThumbsUp, Clock } from 'lucide-react';
 import Head from 'next/head';
 
-export function AboutPage() {
+export default function AboutPage() {
   return (
     <>
       <Head>

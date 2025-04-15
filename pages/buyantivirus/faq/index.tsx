@@ -1,4 +1,4 @@
-import { FAQPage } from "@/pages/buyantivirus/FAQPage";
+import FAQPage from "../FAQPage";
 import Head from 'next/head';
 
 export default function FAQ() {

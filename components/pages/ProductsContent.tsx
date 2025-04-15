@@ -1,11 +1,11 @@
 "use client";
 
 import React from 'react';
-import { ProductCard } from '@/components/products/ProductCard';
-import { Button } from "@/components/ui/button";
+import ProductCard from '../products/ProductCard';
+import { Button } from "../ui/button";
 import { Filter, Search } from 'lucide-react';
-import { Input } from "@/components/ui/input";
-import { CategoryBar } from "@/components/CategoryBar";
+import { Input } from "../ui/input";
+import CategoryBar from "../CategoryBar";
 import { useSearchParams } from 'next/navigation';
 
 // Move this to a separate API route or data file
@@ -64,7 +64,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ category = 'all' }) =
 
   // Update filter based on URL params
   React.useEffect(() => {
-    const filter = searchParams.get('filter');
+    const filter = searchParams?.get('filter');
     if (filter) {
       setSelectedFilter(filter);
     }
@@ -114,7 +114,10 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ category = 'all' }) =
 
   return (
     <div className="min-h-screen flex flex-col">
-      <CategoryBar />
+      <CategoryBar 
+        selectedCategory={selectedFilter}
+        onCategoryChange={setSelectedFilter}
+      />
       
       {/* Hero section with gradient background */}
       <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-12 dark:from-blue-900 dark:to-indigo-900" aria-label="Products Hero">

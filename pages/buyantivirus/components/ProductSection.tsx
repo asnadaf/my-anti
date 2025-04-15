@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../components/ui/button";
 import { ArrowRight, Clock, Shield, Zap } from 'lucide-react';
 
 interface Product {

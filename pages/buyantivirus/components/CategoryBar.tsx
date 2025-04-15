@@ -3,9 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from "@lib/utils";
+import { cn } from "../../../lib/utils";
 import { Shield, Home, Laptop, Building2, Users, Globe, Server } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../components/ui/button";
 import { Smartphone, Database } from "lucide-react";
 
 type Category = {
@@ -52,7 +52,7 @@ const categories: Category[] = [
   }
 ];
 
-export function CategoryBar() {
+export default function CategoryBar() {
   const pathname = usePathname();
 
   return (

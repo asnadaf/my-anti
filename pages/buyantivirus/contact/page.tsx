@@ -1,11 +1,14 @@
-import ContactPage from "@/pages/buyantivirus/ContactPage";
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Contact Us | SecureKeyMaster',
-  description: 'Get in touch with SecureKeyMaster. We\'re here to help with your antivirus license needs and provide exceptional customer support.',
-};
+import ContactPage from "../ContactPage";
+import Head from 'next/head';
 
 export default function Page() {
-  return <ContactPage />;
+  return (
+    <>
+      <Head>
+        <title>Contact Us | SecureKeyMaster</title>
+        <meta name="description" content="Get in touch with SecureKeyMaster. We're here to help with your antivirus license needs and provide exceptional customer support." />
+      </Head>
+      <ContactPage />
+    </>
+  );
 } 

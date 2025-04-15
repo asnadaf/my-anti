@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../components/ui/button";
 import { ArrowRight, Shield, Zap, CheckCircle2 } from 'lucide-react';
 
 const HeroSection: React.FC = () => {

@@ -1,10 +1,10 @@
 "use client";
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { HelpCircle, LifeBuoy, FileText, MessageCircle, Phone, Mail, Clock, ArrowRight } from 'lucide-react';
 
 const supportFaqs = [
@@ -70,7 +70,7 @@ const installationGuides = [
   }
 ];
 
-export function SupportPage() {
+export default function SupportPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Hero section with gradient background */}

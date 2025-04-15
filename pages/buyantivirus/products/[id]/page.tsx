@@ -1,11 +1,14 @@
-import { ProductDetails } from "@/pages/buyantivirus/ProductDetails";
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Product Details | SecureKeyMaster',
-  description: 'View detailed information about our antivirus licenses, including features, pricing, and specifications.',
-};
+import ProductDetails from "../../ProductDetails";
+import Head from 'next/head';
 
 export default function ProductDetailsPage() {
-  return <ProductDetails />;
+  return (
+    <>
+      <Head>
+        <title>Product Details | SecureKeyMaster</title>
+        <meta name="description" content="View detailed information about our antivirus licenses, including features, pricing, and specifications." />
+      </Head>
+      <ProductDetails />
+    </>
+  );
 } 

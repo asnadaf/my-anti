@@ -3,11 +3,11 @@
 import React from 'react';
 // import { Header } from "@/components/Header";
 // import Footer from "@/components/Footer";
-import ProductCard from "@/pages/buyantivirus/components/ProductCard";
-import { Button } from "@/components/ui/button";
+import ProductCard from "./components/ProductCard";
+import { Button } from "../../components/ui/button";
 import { Filter, Search } from 'lucide-react';
-import { Input } from "@/components/ui/input";
-import { CategoryBar } from "@/pages/buyantivirus/components/CategoryBar";
+import { Input } from "../../components/ui/input";
+import CategoryBar from "./components/CategoryBar";
 import Head from 'next/head';
 
 // Move this to a separate API route or data file

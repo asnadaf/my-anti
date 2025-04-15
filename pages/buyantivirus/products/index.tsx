@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import ProductCard from '../components/ProductCard';
-import { CategoryBar } from '../components/CategoryBar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import CategoryBar from '../components/CategoryBar';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
 import { Filter, Search } from 'lucide-react';
 
 // Dummy product data (move to external file or API later)

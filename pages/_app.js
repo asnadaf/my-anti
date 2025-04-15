@@ -2,7 +2,7 @@ import { ThemeProvider } from 'next-themes';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
 import { useEffect } from 'react';
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "../components/ui/toaster";
 
 // Global error handler
 const handleError = (error, errorInfo) => {

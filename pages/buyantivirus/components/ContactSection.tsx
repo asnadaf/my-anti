@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../components/ui/button";
 import { Mail, Phone, MapPin, Clock, ArrowRight } from 'lucide-react';
 
 const contactInfo = [

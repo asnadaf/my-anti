@@ -1,4 +1,4 @@
-import { AboutPage } from "@/pages/buyantivirus/AboutPage";
+import AboutPage from "../AboutPage";
 import Head from 'next/head';
 
 export default function About() {

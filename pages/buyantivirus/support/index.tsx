@@ -1,4 +1,4 @@
-import { SupportPage } from "@/pages/buyantivirus/SupportPage";
+import SupportPage from "../SupportPage";
 import Head from 'next/head';
 
 export default function Support() {

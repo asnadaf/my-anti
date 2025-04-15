@@ -15,7 +15,7 @@ interface SEOProps {
   noIndex?: boolean;
 }
 
-export function SEO({
+export default function SEO({
   title = 'SecureKeyMaster - Your Trusted Antivirus License Provider',
   description = 'Get genuine antivirus license keys at the best prices with instant delivery and 24/7 support.',
   keywords = 'antivirus license, security software, Norton, McAfee, Bitdefender, Kaspersky, ESET, Avast',

@@ -3,7 +3,7 @@
 import React from 'react';
 // import { Header } from "@/components/Header";
 // import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 import { Shield, CheckCircle2, Clock, Zap, Star } from 'lucide-react';
 import Image from 'next/image';
 

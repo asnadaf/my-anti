@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@/components/ui/button";
+import ModeToggle from "./mode-toggle";
+import { Button } from "../../../components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -10,12 +10,12 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
+} from "../../../components/ui/navigation-menu";
 import { User, LogIn, Menu, X, ShoppingCart } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@lib/utils";
+import { cn } from "../../../lib/utils";
 
-export function Header() {
+export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

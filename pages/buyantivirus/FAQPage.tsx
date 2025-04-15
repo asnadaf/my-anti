@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 
-export function FAQPage() {
+export default function FAQPage() {
   const faqs = [
     {
       question: "How do I receive my antivirus license key?",
