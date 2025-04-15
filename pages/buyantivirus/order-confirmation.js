@@ -1,11 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { CheckCircle, ArrowLeft, Home } from 'lucide-react';
+import { useCart } from '../../contexts/CartContext';
 
 export default function OrderConfirmation() {
-  // In a real app, you would get the order details from the URL or state
-  const orderNumber = Math.floor(100000 + Math.random() * 900000); // Generate a random order number
+  const router = useRouter();
+  const { cartItems, calculateTotal } = useCart();
+  
+  // Generate a random order number
+  const orderNumber = Math.floor(100000 + Math.random() * 900000);
+  
+  // Redirect to products page if cart is empty (prevents direct access to confirmation page)
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      router.push('/buyantivirus/products');
+    }
+  }, [cartItems, router]);
+
+  // If cart is empty, show loading state
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // Calculate order total
+  const orderTotal = calculateTotal() * 1.1; // Including tax
 
   return (
     <>
@@ -27,6 +51,8 @@ export default function OrderConfirmation() {
             <div className="bg-gray-50 p-4 rounded-md mb-6">
               <p className="text-sm text-gray-500">Order Number</p>
               <p className="text-lg font-semibold text-gray-900">{orderNumber}</p>
+              <p className="text-sm text-gray-500 mt-2">Order Total</p>
+              <p className="text-lg font-semibold text-gray-900">${orderTotal.toFixed(2)}</p>
             </div>
             <p className="text-sm text-gray-500 mb-6">
               A confirmation email has been sent to your email address with order details and download instructions.

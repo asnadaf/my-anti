@@ -3,6 +3,7 @@ import Layout from '../components/Layout';
 import '../styles/globals.css';
 import { useEffect } from 'react';
 import { Toaster } from "../components/ui/toaster";
+import { CartProvider } from '../contexts/CartContext';
 
 // Global error handler
 const handleError = (error, errorInfo) => {
@@ -51,10 +52,12 @@ export default function App({ Component, pageProps }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <Layout>
-        <Component {...pageProps} />
-        <Toaster />
-      </Layout>
+      <CartProvider>
+        <Layout>
+          <Component {...pageProps} />
+          <Toaster />
+        </Layout>
+      </CartProvider>
     </ThemeProvider>
   );
 } 

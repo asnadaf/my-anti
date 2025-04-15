@@ -2,11 +2,14 @@ import React from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
-import { Star, Check, Shield, Clock, ArrowLeft } from 'lucide-react';
+import { Star, Check, Shield, Clock, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { fetchProductBySlug } from '../../../lib/products';
 import { GetServerSideProps } from 'next';
+import { useCart } from '../../../contexts/CartContext';
+import { useToast } from '../../../components/ui/use-toast';
 
 interface Product {
   _id: string;
@@ -38,6 +41,21 @@ interface ProductDetailsPageProps {
 }
 
 export default function ProductDetailsPage({ product, error }: ProductDetailsPageProps) {
+  const router = useRouter();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product);
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart.`,
+        duration: 3000,
+      });
+    }
+  };
+
   if (!product) {
     return (
       <>
@@ -229,14 +247,18 @@ export default function ProductDetailsPage({ product, error }: ProductDetailsPag
 
               {/* CTA Buttons */}
               <div className="flex gap-4">
-                <Link href={`/buyantivirus/checkout?product=${product.slug}`} className="flex-1">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleAddToCart}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Add to Cart
+                </Button>
+                <Link href="/buyantivirus/cart" className="flex-1">
+                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
                     Buy Now
                   </Button>
                 </Link>
-                <Button variant="outline" className="flex-1">
-                  Add to Cart
-                </Button>
               </div>
             </div>
           </div>

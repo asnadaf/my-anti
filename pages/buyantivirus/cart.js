@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { Trash2, Plus, Minus, ArrowLeft, CreditCard, Lock } from 'lucide-react';
+import { useCart } from '../../contexts/CartContext';
+import { useToast } from '../../components/ui/use-toast';
 
 // Cart item component
 const CartItem = ({ item, onUpdateQuantity, onRemoveItem }) => {
@@ -258,57 +260,23 @@ const CheckoutForm = ({ total, onCheckout }) => {
 // Main Cart Dashboard component
 export default function CartDashboard() {
   const router = useRouter();
-  const [cartItems, setCartItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Mock data for demonstration
-  useEffect(() => {
-    // In a real app, this would fetch from an API or localStorage
-    const mockCartItems = [
-      {
-        id: '1',
-        name: 'Norton 360 Deluxe',
-        brand: 'Norton',
-        price: 49.99,
-        originalPrice: 79.99,
-        quantity: 1,
-        image: '/images/products/norton-360-deluxe.jpg',
-      },
-      {
-        id: '2',
-        name: 'McAfee Total Protection',
-        brand: 'McAfee',
-        price: 39.99,
-        originalPrice: 59.99,
-        quantity: 1,
-        image: '/images/products/mcafee-total-protection.jpg',
-      },
-    ];
-    
-    setCartItems(mockCartItems);
-    setIsLoading(false);
-  }, []);
-
-  const updateQuantity = (id, newQuantity) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  const removeItem = (id) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
-  };
-
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-  };
+  const { cartItems, isLoading, updateQuantity, removeItem, calculateTotal, clearCart } = useCart();
+  const { toast } = useToast();
 
   const handleCheckout = (formData) => {
     // In a real app, this would process the payment and create an order
     console.log('Processing checkout with:', formData);
-    alert('Order placed successfully!');
+    
+    // Clear the cart after successful checkout
+    clearCart();
+    
+    toast({
+      title: "Order placed successfully!",
+      description: "Thank you for your purchase. You will be redirected to the confirmation page.",
+      duration: 3000,
+    });
+    
+    // Redirect to order confirmation page
     router.push('/buyantivirus/order-confirmation');
   };
 
