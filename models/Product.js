@@ -29,6 +29,7 @@ const ProductSchema = new mongoose.Schema({
     ref: 'Category',
     required: [true, 'Please provide a category for this product.'],
   },
+  duration: { type: mongoose.Schema.Types.ObjectId, ref: 'Duration' },
   status: {
     type: String,
     enum: ['active', 'inactive'],
@@ -37,10 +38,6 @@ const ProductSchema = new mongoose.Schema({
   features: [{
     type: String,
   }],
-  inStock: {
-    type: Boolean,
-    default: true,
-  },
   stockCount: {
     type: Number,
     default: 0,

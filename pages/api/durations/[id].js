@@ -1,4 +1,4 @@
-import dbConnect from '@lib/db';
+import dbConnect from '../../../lib/db';
 import Duration from '../../../models/Duration';
 
 export default async function handler(req, res) {
