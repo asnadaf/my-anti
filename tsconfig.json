@@ -27,10 +27,9 @@
       "@styles/*": ["./styles/*"],
       "@public/*": ["./public/*"],
       // "@/*": ["./*"],
-      "@/components/*": ["./components/*"],
       "@/components/ui/*": ["./components/ui/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/pages/*": ["./pages/*"]
+      "@/pages/*": ["./pages/*"],
+      "@/theme-provider": ["./src/components/ui/theme-provider"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

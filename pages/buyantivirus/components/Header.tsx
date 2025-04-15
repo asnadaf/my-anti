@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { User, LogIn, Menu, X, ShoppingCart } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@lib/utils";
 
 export function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

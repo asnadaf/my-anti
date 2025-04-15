@@ -1,4 +1,4 @@
-import ContactPage from "@/pages/buyantivirus//ContactPage";
+import ContactPage from "@/pages/buyantivirus/ContactPage";
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
