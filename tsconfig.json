@@ -25,7 +25,12 @@
       "@lib/*": ["./lib/*"],
       "@models/*": ["./models/*"],
       "@styles/*": ["./styles/*"],
-      "@public/*": ["./public/*"]
+      "@public/*": ["./public/*"],
+      // "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/components/ui/*": ["./components/ui/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/pages/*": ["./pages/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
