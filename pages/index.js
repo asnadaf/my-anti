@@ -7,6 +7,7 @@ import BenefitsSection from "./buyantivirus/components/BenefitsSection";
 import TrustSection from "./buyantivirus/components/TrustSection";
 import FaqSection from "./buyantivirus/components/FaqSection";
 import Footer from "@components/Footer";
+import { fetchProducts } from '../lib/products';
 
 export default function Home() {
   // Structured data for better SEO
@@ -103,12 +104,21 @@ export default function Home() {
 
 // Server-side rendering with getServerSideProps
 export async function getServerSideProps(context) {
-  // Fetch data from your API or database
-  const products = await fetchProducts();
-  
-  return {
-    props: {
-      products,
-    },
-  };
+  try {
+    // Fetch data from your API or database
+    const products = await fetchProducts();
+    
+    return {
+      props: {
+        products,
+      },
+    };
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+    return {
+      props: {
+        products: [],
+      },
+    };
+  }
 }
