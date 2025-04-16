@@ -5,7 +5,7 @@ import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import Category from '@models/Category';
 import Duration from '@models/Duration';
-import { requireAuth } from '@lib/auth';
+import { requireAuth, requireAdmin } from '@lib/auth';
 
 export default function NewProduct({ categories, durations }) {
   const router = useRouter();
@@ -400,15 +400,12 @@ export default function NewProduct({ categories, durations }) {
 }
 
 export async function getServerSideProps(context) {
-  const { user } = await requireAuth(context);
-
-  if (!user || user.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
+  // Use requireAdmin to authenticate and secure this route
+  const adminResult = await requireAdmin(context);
+  
+  // If adminResult contains redirect, return it immediately
+  if (adminResult && adminResult.redirect) {
+    return adminResult;
   }
 
   try {

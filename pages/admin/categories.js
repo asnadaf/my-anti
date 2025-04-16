@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import Category from '@models/Category';
-import { requireAuth } from '@lib/auth';
+import { requireAdmin } from '@lib/auth';
 
 export default function AdminCategories({ categories }) {
   const router = useRouter();
@@ -134,24 +134,12 @@ export default function AdminCategories({ categories }) {
 }
 
 export async function getServerSideProps(context) {
-  const auth = await requireAuth(context.req, context.res);
-
-  if (!auth) {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
-  }
-
-  if (auth.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/client',
-        permanent: false,
-      },
-    };
+  // Use requireAdmin to authenticate and secure this route
+  const adminResult = await requireAdmin(context);
+  
+  // If adminResult contains redirect, return it immediately
+  if (adminResult && adminResult.redirect) {
+    return adminResult;
   }
 
   await dbConnect();

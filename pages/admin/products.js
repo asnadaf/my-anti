@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
-import { requireAuth } from '@lib/auth';
+import { requireAdmin } from '@lib/auth';
 
 export default function ProductsPage({ products: initialProducts }) {
   const [products, setProducts] = useState(initialProducts);
@@ -172,14 +172,10 @@ export default function ProductsPage({ products: initialProducts }) {
 }
 
 export async function getServerSideProps(context) {
-  const auth = await requireAuth(context.req, context.res);
-  if (!auth || auth.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
+  const adminResult = await requireAdmin(context);
+  
+  if (adminResult && adminResult.redirect) {
+    return adminResult;
   }
 
   await dbConnect();

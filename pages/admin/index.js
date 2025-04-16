@@ -1,4 +1,4 @@
-import { requireAuth } from '@lib/auth';
+import { requireAdmin } from '@lib/auth';
 import dbConnect from '@lib/db';
 import Category from '@models/Category';
 import Product from '@models/Product';
@@ -104,24 +104,10 @@ export default function AdminDashboard({ stats, recentOrders }) {
 }
 
 export async function getServerSideProps(context) {
-  const auth = await requireAuth(context.req, context.res);
-
-  if (!auth) {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
-  }
-
-  if (auth.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/client',
-        permanent: false,
-      },
-    };
+  const adminResult = await requireAdmin(context, '/client');
+  
+  if (adminResult && adminResult.redirect) {
+    return adminResult;
   }
 
   await dbConnect();

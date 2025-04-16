@@ -4,7 +4,7 @@ import Layout from '../../components/Layout';
 import SEO from '../../components/SEO';
 import dbConnect from '../../lib/db';
 import User from '../../models/User';
-import { requireAuth, requireRole } from '../../lib/auth';
+import { requireAuth, requireRole, requireAdmin } from '../../lib/auth';
 
 export default function AdminUsers({ users }) {
   const router = useRouter();
@@ -96,24 +96,12 @@ export default function AdminUsers({ users }) {
 }
 
 export async function getServerSideProps(context) {
-  const auth = await requireAuth(context.req, context.res);
-  if (!auth) {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
-  }
-
-  const roleCheck = await requireRole(['admin'])(context.req, context.res);
-  if (!roleCheck) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
+  // Use requireAdmin to authenticate and secure this route
+  const adminResult = await requireAdmin(context);
+  
+  // If adminResult contains redirect, return it immediately
+  if (adminResult && adminResult.redirect) {
+    return adminResult;
   }
 
   await dbConnect();

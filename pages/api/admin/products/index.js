@@ -1,26 +1,24 @@
-import { requireAuth } from '@lib/auth';
+import { withAdminAuth } from '@lib/auth';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
+import Category from '@models/Category';
 import Duration from '@models/Duration';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   try {
-    const auth = await requireAuth(req, res);
-    if (!auth || auth.role !== 'admin') {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
+    await dbConnect();
 
+    // Previous admin check is now handled by withAdminAuth
+    
     const { name, description, originalPrice, discountPrice, category, status, image, features, stockCount, duration, tag } = req.body;
 
     if (!name || !description || !originalPrice || !category) {
       return res.status(400).json({ message: 'Name, description, original price, and category are required' });
     }
-
-    await dbConnect();
 
     // Generate slug from name
     const slug = name
@@ -58,4 +56,6 @@ export default async function handler(req, res) {
     console.error('Error creating product:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
-} 
+}
+
+export default withAdminAuth(handler); 

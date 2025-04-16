@@ -1,4 +1,4 @@
-import { requireAuth } from '@lib/auth';
+import { requireAdmin } from '@lib/auth';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
 import Duration from '@models/Duration';
@@ -11,9 +11,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const auth = await requireAuth(req, res);
-    if (!auth || auth.role !== 'admin') {
-      return res.status(401).json({ message: 'Unauthorized' });
+    // Authenticate and check for admin role (pass isApi=true)
+    const admin = await requireAdmin({ req, res }, null, true);
+    
+    // If not admin, the function already sends the appropriate response
+    if (!admin) {
+      return;
     }
 
     await dbConnect();

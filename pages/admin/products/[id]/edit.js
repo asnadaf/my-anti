@@ -5,7 +5,7 @@ import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
 import Category from '@models/Category';
-import { requireAuth } from '@lib/auth';
+import { requireAdmin } from '@lib/auth';
 import Duration from '@models/Duration';
 
 export default function EditProductPage({ product: initialProduct, categories, durations }) {
@@ -392,15 +392,13 @@ export default function EditProductPage({ product: initialProduct, categories, d
 
 export async function getServerSideProps(context) {
   const { id } = context.params;
-  const { user } = await requireAuth(context);
-
-  if (!user || user.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
+  
+  // Use requireAdmin to authenticate and secure this route
+  const adminResult = await requireAdmin(context);
+  
+  // If adminResult contains redirect, return it immediately
+  if (adminResult && adminResult.redirect) {
+    return adminResult;
   }
 
   try {
