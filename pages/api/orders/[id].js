@@ -1,5 +1,5 @@
 import { requireAuth } from '../../../lib/auth';
-import dbConnect from '../../../lib/dbConnect';
+import dbConnect from '../../../lib/db';
 import Order from '../../../models/Order';
 import LicenseKey from '../../../models/LicenseKey';
 
