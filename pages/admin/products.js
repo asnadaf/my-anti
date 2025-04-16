@@ -174,7 +174,7 @@ export default function ProductsPage({ products: initialProducts }) {
 export async function getServerSideProps(context) {
   const adminResult = await requireAdmin(context);
   
-  if (adminResult && adminResult.redirect) {
+  if (adminResult.redirect) {
     return adminResult;
   }
 

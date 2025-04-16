@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 
 const FilterBar = () => {
   const router = useRouter();
-  const { query } = router;
+  const [initialized, setInitialized] = useState(false);
   
   // Filter states
   const [filters, setFilters] = useState({
-    security: query.security ? query.security.split(',') : [],
-    brand: query.brand ? query.brand.split(',') : [],
-    duration: query.duration ? query.duration.split(',') : [],
-    minPrice: query.minPrice || '',
-    maxPrice: query.maxPrice || '',
+    security: [],
+    brand: [],
+    duration: [],
+    minPrice: '',
+    maxPrice: '',
   });
   
   const [expandedSections, setExpandedSections] = useState({
@@ -51,22 +51,34 @@ const FilterBar = () => {
     { id: 'eset', label: 'ESET' },
   ];
 
-  // Update URL when filters change
+  // Initialize filters from URL params when component mounts or router is ready
   useEffect(() => {
-    // Don't update on initial load
-    if (Object.keys(query).length === 0 && 
-        filters.security.length === 0 && 
-        filters.brand.length === 0 && 
-        filters.duration.length === 0 && 
-        filters.minPrice === '' && 
-        filters.maxPrice === '') {
-      return;
+    if (!router.isReady) return;
+    
+    // Only initialize once when router is ready
+    if (!initialized) {
+      const { security, brand, duration, minPrice, maxPrice } = router.query;
+      
+      setFilters({
+        security: security ? security.split(',') : [],
+        brand: brand ? brand.split(',') : [],
+        duration: duration ? duration.split(',') : [],
+        minPrice: minPrice || '',
+        maxPrice: maxPrice || '',
+      });
+      
+      setInitialized(true);
     }
+  }, [router.isReady, initialized, router.query]);
+
+  // Update URL with debouncing to prevent rapid re-renders
+  const updateURL = useCallback(() => {
+    if (!initialized) return;
     
-    // Build query parameters
-    const queryParams = { ...query };
+    // Build query parameters starting with current ones
+    const queryParams = { ...router.query };
     
-    // Add or remove filter params
+    // Update filter params
     if (filters.security.length > 0) {
       queryParams.security = filters.security.join(',');
     } else {
@@ -102,8 +114,18 @@ const FilterBar = () => {
       pathname: router.pathname,
       query: queryParams,
     }, undefined, { shallow: true });
+  }, [filters, router, initialized]);
+  
+  // Use effect to update URL when filters change, with debounce
+  useEffect(() => {
+    if (!initialized) return;
     
-  }, [filters]);
+    const timer = setTimeout(() => {
+      updateURL();
+    }, 500); // 500ms debounce
+    
+    return () => clearTimeout(timer);
+  }, [filters, updateURL, initialized]);
 
   // Toggle section expand/collapse
   const toggleSection = (section) => {
@@ -143,7 +165,7 @@ const FilterBar = () => {
 
   // Apply price filter
   const applyPriceFilter = () => {
-    // Price filter is already applied through the useEffect
+    // Intentionally empty, as price filter is applied through the useEffect
   };
 
   // Reset all filters
@@ -159,7 +181,15 @@ const FilterBar = () => {
 
   return (
     <div className="w-full md:w-64 border-r border-gray-200 bg-white p-4 shadow-sm rounded-lg">
-      <h2 className="text-xl font-bold border-b pb-2 mb-4">Filters</h2>
+      <div className="flex justify-between items-center border-b pb-2 mb-4">
+        <h2 className="text-xl font-bold">Filters</h2>
+        <button 
+          onClick={resetFilters}
+          className="text-xs text-blue-600 hover:text-blue-800"
+        >
+          Reset all
+        </button>
+      </div>
       
       {/* Security Type Filter */}
       <div className="mb-6">
@@ -175,12 +205,12 @@ const FilterBar = () => {
               <div key={option.id} className="flex items-center">
                 <input 
                   type="checkbox" 
-                  id={option.id} 
+                  id={`security-${option.id}`}
                   className="mr-2" 
                   checked={filters.security.includes(option.id)}
                   onChange={() => handleCheckboxChange('security', option.id)}
                 />
-                <label htmlFor={option.id} className="text-gray-700 cursor-pointer">{option.label}</label>
+                <label htmlFor={`security-${option.id}`} className="text-gray-700 cursor-pointer">{option.label}</label>
               </div>
             ))}
           </div>
@@ -201,12 +231,12 @@ const FilterBar = () => {
               <div key={option.id} className="flex items-center">
                 <input 
                   type="checkbox" 
-                  id={option.id} 
+                  id={`brand-${option.id}`}
                   className="mr-2" 
                   checked={filters.brand.includes(option.id)}
                   onChange={() => handleCheckboxChange('brand', option.id)}
                 />
-                <label htmlFor={option.id} className="text-gray-700 cursor-pointer">{option.label}</label>
+                <label htmlFor={`brand-${option.id}`} className="text-gray-700 cursor-pointer">{option.label}</label>
               </div>
             ))}
           </div>
@@ -227,12 +257,12 @@ const FilterBar = () => {
               <div key={option.id} className="flex items-center">
                 <input 
                   type="checkbox" 
-                  id={option.id} 
+                  id={`duration-${option.id}`}
                   className="mr-2" 
                   checked={filters.duration.includes(option.id)}
                   onChange={() => handleCheckboxChange('duration', option.id)}
                 />
-                <label htmlFor={option.id} className="text-gray-700 cursor-pointer">{option.label}</label>
+                <label htmlFor={`duration-${option.id}`} className="text-gray-700 cursor-pointer">{option.label}</label>
               </div>
             ))}
           </div>
@@ -275,23 +305,9 @@ const FilterBar = () => {
                 />
               </div>
             </div>
-            <button 
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-              onClick={applyPriceFilter}
-            >
-              Apply
-            </button>
           </div>
         )}
       </div>
-      
-      {/* Reset Filters Button */}
-      <button 
-        className="w-full border border-gray-300 text-gray-700 py-2 rounded hover:bg-gray-100 transition"
-        onClick={resetFilters}
-      >
-        Reset Filters
-      </button>
     </div>
   );
 };

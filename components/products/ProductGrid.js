@@ -9,7 +9,13 @@ const ProductGrid = ({ products, isLoading = false }) => {
     
   const displayProducts = isLoading ? placeholderProducts : products;
   
-  if (!displayProducts || displayProducts.length === 0) {
+  console.log('ProductGrid received:', { 
+    productsLength: products?.length || 0, 
+    isLoading, 
+    displayProductsLength: displayProducts?.length || 0 
+  });
+  
+  if (!isLoading && (!displayProducts || displayProducts.length === 0)) {
     return (
       <div className="w-full bg-white rounded-lg p-6 text-center shadow-sm">
         <h3 className="text-xl font-semibold mb-2">No Products Found</h3>

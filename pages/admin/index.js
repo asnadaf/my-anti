@@ -106,7 +106,7 @@ export default function AdminDashboard({ stats, recentOrders }) {
 export async function getServerSideProps(context) {
   const adminResult = await requireAdmin(context, '/client');
   
-  if (adminResult && adminResult.redirect) {
+  if (adminResult.redirect) {
     return adminResult;
   }
 
@@ -122,6 +122,7 @@ export async function getServerSideProps(context) {
       .populate('user', 'email')
       .sort({ createdAt: -1 })
       .limit(5)
+      .lean()
   ]);
 
   return {

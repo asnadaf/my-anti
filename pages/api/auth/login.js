@@ -1,4 +1,4 @@
-import { setAuthCookie, generateToken } from '@lib/auth';
+import { setAuthCookie, generateToken, getRedirectPath } from '@lib/auth';
 import dbConnect from '@lib/db';
 import User from '@models/User';
 import bcrypt from 'bcryptjs';
@@ -42,12 +42,16 @@ export default async function handler(req, res) {
     // Set httpOnly cookie
     setAuthCookie(res, token);
 
+    // Get the appropriate redirect path based on role
+    const redirectPath = getRedirectPath(user);
+
     // Return user data (excluding password)
     const userData = {
       id: user._id.toString(),
       name: user.name,
       email: user.email,
       role: user.role,
+      redirectPath
     };
 
     res.status(200).json(userData);

@@ -20,13 +20,18 @@ export default function Login() {
         const response = await fetch('/api/auth/verify', {
           credentials: 'include',
         });
-        const user = await response.json();
         
-        
-        if (response.ok && user.role === 'admin') {
-          router.replace('/admin');
-        } else if (response.ok && user.role === 'client') {
-          router.replace('/client');
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Use redirect path provided by API for consistency
+          if (data.redirectPath) {
+            router.replace(data.redirectPath);
+          } else {
+            // Fallback to role-based redirect
+            const path = data.role === 'admin' ? '/admin' : '/client';
+            router.replace(path);
+          }
         }
       } catch (error) {
         console.error('Auth check error:', error);
@@ -59,13 +64,12 @@ export default function Login() {
         throw new Error(data.message || 'Something went wrong');
       }
 
-      if (data.role === 'admin') {
-        router.replace('/admin');
-      } else {
-        router.replace('/client');
-      }
-      // Use replace instead of push to prevent back button issues
-      router.replace('/client');
+      // Use redirect path from API response
+      const redirectPath = data.redirectPath || 
+        (data.role === 'admin' ? '/admin' : '/client');
+      
+      // Use replace to prevent back button issues
+      router.replace(redirectPath);
     } catch (err) {
       setError(err.message);
     } finally {
