@@ -1,28 +1,104 @@
-"use client";
-
 import React from 'react';
 // import { Header } from "@/components/Header";
 // import Footer from "@/components/Footer";
 import { Button } from "../../components/ui/button";
 import { Shield, Users, Award, Globe, ThumbsUp, Clock } from 'lucide-react';
-import Head from 'next/head';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'About Us | SecureKeyMaster - Leading Antivirus License Provider Since 2015',
+  description: 'Discover why SecureKeyMaster is the trusted choice for genuine antivirus license keys. Serving 50,000+ customers with instant delivery, 24/7 support, and the best prices on Norton, McAfee, and Bitdefender licenses.',
+  keywords: 'antivirus license, security software, digital protection, genuine keys, Norton license, McAfee license, Bitdefender license, antivirus deals, cybersecurity',
+  openGraph: {
+    title: 'About SecureKeyMaster - Your Trusted Antivirus License Provider',
+    description: 'Leading provider of genuine antivirus license keys with 24/7 support and instant delivery. Trusted by 50,000+ customers worldwide.',
+    type: 'website',
+    url: 'https://securekeymaster.com/about',
+    images: [
+      {
+        url: 'https://securekeymaster.com/images/about-og.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'SecureKeyMaster - About Us'
+      }
+    ],
+    siteName: 'SecureKeyMaster',
+    locale: 'en_US'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About SecureKeyMaster - Your Trusted Antivirus License Provider',
+    description: 'Leading provider of genuine antivirus license keys with 24/7 support and instant delivery.',
+    images: ['https://securekeymaster.com/images/about-twitter.jpg']
+  },
+  alternates: {
+    canonical: 'https://securekeymaster.com/about'
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-site-verification',
+    yandex: 'your-yandex-verification',
+    yahoo: 'your-yahoo-verification',
+    other: {
+      me: ['your-email@example.com']
+    }
+  }
+};
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "About SecureKeyMaster",
+  "description": "Leading provider of genuine antivirus license keys with 24/7 support and instant delivery",
+  "url": "https://securekeymaster.com/about",
+  "publisher": {
+    "@type": "Organization",
+    "name": "SecureKeyMaster",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://securekeymaster.com/images/logo.png"
+    }
+  },
+  "mainEntity": {
+    "@type": "Organization",
+    "name": "SecureKeyMaster",
+    "description": "Leading provider of genuine antivirus license keys",
+    "foundingDate": "2015",
+    "numberOfEmployees": "50",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "US"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "email": "support@securekeymaster.com",
+      "availableLanguage": ["English", "Spanish", "French"]
+    }
+  }
+};
 
 export default function AboutPage() {
   return (
     <>
-      <Head>
-        <title>About Us | SecureKeyMaster - Your Trusted Antivirus License Provider</title>
-        <meta name="description" content="Learn about SecureKeyMaster's mission to provide genuine antivirus license keys at the best prices with instant delivery and exceptional customer service." />
-        <meta name="keywords" content="antivirus license, security software, digital protection, genuine keys" />
-        <meta property="og:title" content="About SecureKeyMaster" />
-        <meta property="og:description" content="Your trusted source for genuine antivirus license keys with 24/7 support." />
-        <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://securekeymaster.com/about" />
-      </Head>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="min-h-screen flex flex-col bg-background">
         {/* <Header /> */}
         <main className="flex-grow">
-          <section className="bg-security-gradient py-16 dark:bg-gradient-to-br dark:from-blue-900 dark:to-indigo-900" aria-label="About Hero">
+          <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-16 dark:bg-gradient-to-br dark:from-blue-900 dark:to-indigo-900" aria-label="About Hero">
             <div className="container mx-auto px-4 text-center">
               <Shield size={64} className="mx-auto mb-6 text-white" aria-hidden="true" />
               <h1 className="text-3xl md:text-5xl font-bold text-white mb-6">About SecureKeyMaster</h1>
@@ -36,8 +112,8 @@ export default function AboutPage() {
           <section className="py-16" aria-label="Our Story">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
-                <h2 className="text-3xl font-bold mb-6 text-foreground">Our Story</h2>
-                <article className="prose prose-lg max-w-none text-muted-foreground dark:prose-invert">
+                <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-foreground">Our Story</h2>
+                <article className="prose prose-lg max-w-none text-gray-600 dark:text-muted-foreground dark:prose-invert">
                   <p>
                     Founded in 2015, SecureKeyMaster began with a simple mission: to make premium digital security accessible to everyone. 
                     We noticed that many users were foregoing essential security software due to high prices, which left them vulnerable to cyber threats.
@@ -61,7 +137,7 @@ export default function AboutPage() {
           
           <section className="py-16" aria-label="Our Values">
             <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold mb-12 text-center text-foreground">Our Values</h2>
+              <h2 className="text-3xl font-bold mb-12 text-center text-gray-900 dark:text-foreground">Our Values</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[
                   {
@@ -97,12 +173,12 @@ export default function AboutPage() {
                 ].map((value, index) => {
                   const Icon = value.icon;
                   return (
-                    <article key={index} className="bg-card p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 dark:border dark:border-border">
-                      <div className="bg-security-lightBlue p-4 rounded-full inline-block mb-4">
-                        <Icon size={32} className="text-security-blue dark:text-blue-400" aria-hidden="true" />
+                    <article key={index} className="bg-white dark:bg-card p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 dark:border dark:border-border">
+                      <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full inline-block mb-4">
+                        <Icon size={32} className="text-blue-600 dark:text-blue-400" aria-hidden="true" />
                       </div>
-                      <h3 className="text-xl font-semibold mb-4 text-foreground">{value.title}</h3>
-                      <p className="text-muted-foreground">
+                      <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-foreground">{value.title}</h3>
+                      <p className="text-gray-600 dark:text-muted-foreground">
                         {value.description}
                       </p>
                     </article>
@@ -115,19 +191,39 @@ export default function AboutPage() {
           <section className="py-16" aria-label="Our Promise">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-3xl font-bold mb-6 text-foreground">Our Promise to You</h2>
-                <p className="text-xl text-muted-foreground mb-8">
+                <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-foreground">Our Promise to You</h2>
+                <p className="text-xl text-gray-600 dark:text-muted-foreground mb-8">
                   At SecureKeyMaster, we're committed to providing you with genuine antivirus license keys at the best prices,
                   backed by exceptional service and support.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <Button asChild className="bg-security-blue hover:bg-security-blue/90 dark:bg-blue-600 dark:hover:bg-blue-700">
+                  <Button asChild className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">
                     <a href="/products" aria-label="Browse our products">Browse Products</a>
                   </Button>
                   <Button asChild variant="outline">
                     <a href="/contact" aria-label="Contact our support team">Contact Us</a>
                   </Button>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="py-16 bg-gray-50 dark:bg-gray-900" aria-label="FAQ Section">
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl font-bold mb-12 text-center text-gray-900 dark:text-foreground">Frequently Asked Questions</h2>
+              <div className="max-w-3xl mx-auto">
+                <details className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
+                  <summary className="font-semibold cursor-pointer text-gray-900 dark:text-foreground">Are your antivirus license keys genuine?</summary>
+                  <p className="mt-2 text-gray-600 dark:text-muted-foreground">Yes, all our license keys are 100% genuine and sourced directly from authorized distributors. We provide a guarantee of successful activation with every purchase.</p>
+                </details>
+                <details className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
+                  <summary className="font-semibold cursor-pointer text-gray-900 dark:text-foreground">How quickly will I receive my license key?</summary>
+                  <p className="mt-2 text-gray-600 dark:text-muted-foreground">We provide instant delivery of license keys. You'll receive your key immediately after purchase via email and can access it in your account dashboard.</p>
+                </details>
+                <details className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
+                  <summary className="font-semibold cursor-pointer text-gray-900 dark:text-foreground">What payment methods do you accept?</summary>
+                  <p className="mt-2 text-gray-600 dark:text-muted-foreground">We accept all major credit cards, PayPal, and various other secure payment methods. All transactions are encrypted and secure.</p>
+                </details>
               </div>
             </div>
           </section>
