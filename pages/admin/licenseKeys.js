@@ -1,35 +1,68 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 // import Layout from '@components/Layout';
 import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import LicenseKey from '@models/LicenseKey';
+import Product from '@models/Product';
+import Duration from '@models/Duration';
 import { requireAuth } from '@lib/auth';
 
-export default function LicenseKeysPage({ licenseKeys: initialLicenseKeys }) {
+export default function LicenseKeysPage({ licenseKeys: initialLicenseKeys, products, durations }) {
   const [licenseKeys, setLicenseKeys] = useState(initialLicenseKeys);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [selectedDuration, setSelectedDuration] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
+  // Apply all filters whenever any filter changes
+  useEffect(() => {
+    let filtered = [...initialLicenseKeys];
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (key) =>
+          key.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          key.product?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Apply status filter
+    if (selectedStatus) {
+      filtered = filtered.filter(key => key.status === selectedStatus);
+    }
+    
+    // Apply product filter
+    if (selectedProduct) {
+      filtered = filtered.filter(key => key.product?._id === selectedProduct);
+    }
+    
+    // Apply duration filter
+    if (selectedDuration) {
+      filtered = filtered.filter(key => key.duration === selectedDuration);
+    }
+    
+    setLicenseKeys(filtered);
+  }, [initialLicenseKeys, searchTerm, selectedStatus, selectedProduct, selectedDuration]);
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    const filtered = initialLicenseKeys.filter(
-      (key) =>
-        key.key.toLowerCase().includes(e.target.value.toLowerCase()) ||
-        key.product?.name?.toLowerCase().includes(e.target.value.toLowerCase())
-    );
-    setLicenseKeys(filtered);
   };
 
   const handleStatusChange = (e) => {
     setSelectedStatus(e.target.value);
-    const filtered = initialLicenseKeys.filter(
-      (key) => !e.target.value || key.status === e.target.value
-    );
-    setLicenseKeys(filtered);
+  };
+
+  const handleProductChange = (e) => {
+    setSelectedProduct(e.target.value);
+  };
+
+  const handleDurationChange = (e) => {
+    setSelectedDuration(e.target.value);
   };
 
   const handleDelete = async (id) => {
@@ -56,6 +89,14 @@ export default function LicenseKeysPage({ licenseKeys: initialLicenseKeys }) {
     }
   };
 
+  // Helper function to get duration display text
+  const getDurationDisplay = (durationId) => {
+    if (!durationId || !durations) return '';
+    const duration = durations.find(d => d._id === durationId);
+    if (!duration) return '';
+    return `${duration.duration} ${duration.durationUnit} (${duration.deviceCount} ${duration.deviceType})`;
+  };
+
   return (
     <>
       <SEO title="License Keys" />
@@ -76,13 +117,13 @@ export default function LicenseKeysPage({ licenseKeys: initialLicenseKeys }) {
           </div>
         )}
 
-        <div className="mb-4 flex gap-4">
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <input
             type="text"
             placeholder="Search by key or product name..."
             value={searchTerm}
             onChange={handleSearch}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <select
             value={selectedStatus}
@@ -93,6 +134,30 @@ export default function LicenseKeysPage({ licenseKeys: initialLicenseKeys }) {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
             <option value="used">Used</option>
+          </select>
+          <select
+            value={selectedProduct}
+            onChange={handleProductChange}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">All Products</option>
+            {products && products.map((product) => (
+              <option key={product._id} value={product._id}>
+                {product.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedDuration}
+            onChange={handleDurationChange}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">All Durations</option>
+            {durations && durations.map((duration) => (
+              <option key={duration._id} value={duration._id}>
+                {duration.duration} {duration.durationUnit} ({duration.deviceCount} {duration.deviceType})
+              </option>
+            ))}
           </select>
         </div>
 
@@ -105,6 +170,9 @@ export default function LicenseKeysPage({ licenseKeys: initialLicenseKeys }) {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Duration
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -125,6 +193,9 @@ export default function LicenseKeysPage({ licenseKeys: initialLicenseKeys }) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{licenseKey.product?.name}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{getDurationDisplay(licenseKey.duration)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -182,14 +253,20 @@ export async function getServerSideProps(context) {
 
   await dbConnect();
 
-  const licenseKeys = await LicenseKey.find({})
-    .populate('product', 'name')
-    .sort({ createdAt: -1 })
-    .lean();
+  const [licenseKeys, products, durations] = await Promise.all([
+    LicenseKey.find({})
+      .populate('product', 'name')
+      .sort({ createdAt: -1 })
+      .lean(),
+    Product.find({}).select('name').lean(),
+    Duration.find({}).lean()
+  ]);
 
   return {
     props: {
       licenseKeys: JSON.parse(JSON.stringify(licenseKeys)),
+      products: JSON.parse(JSON.stringify(products)),
+      durations: JSON.parse(JSON.stringify(durations)),
     },
   };
 } 

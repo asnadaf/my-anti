@@ -1,25 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@components/Layout';
 import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
+import Duration from '@models/Duration';
 import { requireAuth } from '@lib/auth';
 
-export default function NewLicenseKeyPage({ products }) {
+export default function NewLicenseKeyPage({ products, durations }) {
   const [formData, setFormData] = useState({
     key: '',
     status: 'active',
     product: '',
+    duration: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const router = useRouter();
+
+  // Find the selected product when product ID changes
+  useEffect(() => {
+    if (formData.product) {
+      const product = products.find(p => p._id === formData.product);
+      setSelectedProduct(product);
+    } else {
+      setSelectedProduct(null);
+    }
+  }, [formData.product, products]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    // Validate that the selected duration matches the product's duration
+    if (selectedProduct && selectedProduct.duration && selectedProduct.duration !== formData.duration) {
+      setError('The selected duration does not match the product\'s duration. Please select the correct duration.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/admin/licenseKeys', {
@@ -45,7 +65,7 @@ export default function NewLicenseKeyPage({ products }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -89,6 +109,29 @@ export default function NewLicenseKeyPage({ products }) {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Duration</label>
+            <select
+              name="duration"
+              value={formData.duration}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            >
+              <option value="">Select a duration</option>
+              {durations.map((duration) => (
+                <option key={duration._id} value={duration._id}>
+                  {duration.duration} {duration.durationUnit} ({duration.deviceCount} {duration.deviceType})
+                </option>
+              ))}
+            </select>
+            {selectedProduct && selectedProduct.duration && (
+              <p className="mt-1 text-sm text-gray-500">
+                Product requires duration: {durations.find(d => d._id === selectedProduct.duration)?.duration} {durations.find(d => d._id === selectedProduct.duration)?.durationUnit}
+              </p>
+            )}
           </div>
 
           <div>
@@ -140,11 +183,13 @@ export async function getServerSideProps(context) {
 
   await dbConnect();
 
-  const products = await Product.find({}).select('name').lean();
+  const products = await Product.find({}).select('name duration').lean();
+  const durations = await Duration.find({}).lean();
 
   return {
     props: {
       products: JSON.parse(JSON.stringify(products)),
+      durations: JSON.parse(JSON.stringify(durations)),
     },
   };
 } 

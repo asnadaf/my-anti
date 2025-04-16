@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     await dbConnect();
 
     if (req.method === 'PUT') {
-      const { key, status, product } = req.body;
+      const { key, status, product, duration } = req.body;
 
       if (!key) {
         return res.status(400).json({ message: 'License key is required' });
@@ -27,6 +27,10 @@ export default async function handler(req, res) {
 
       if (!product) {
         return res.status(400).json({ message: 'Product is required' });
+      }
+
+      if (!duration) {
+        return res.status(400).json({ message: 'Duration is required' });
       }
 
       // Check if the new key already exists (excluding current key)
@@ -37,7 +41,7 @@ export default async function handler(req, res) {
 
       const updatedLicenseKey = await LicenseKey.findByIdAndUpdate(
         id,
-        { key, status, product },
+        { key, status, product, duration },
         { new: true }
       );
 

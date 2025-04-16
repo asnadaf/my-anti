@@ -5,9 +5,10 @@ import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import LicenseKey from '@models/LicenseKey';
 import Product from '@models/Product';
+import Duration from '@models/Duration';
 import { requireAuth } from '@lib/auth';
 
-export default function EditLicenseKeyPage({ licenseKey: initialLicenseKey, products }) {
+export default function EditLicenseKeyPage({ licenseKey: initialLicenseKey, products, durations }) {
   const router = useRouter();
   const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
   const [loading, setLoading] = useState(false);
@@ -28,6 +29,7 @@ export default function EditLicenseKeyPage({ licenseKey: initialLicenseKey, prod
           key: licenseKey.key,
           status: licenseKey.status,
           product: licenseKey.product,
+          duration: licenseKey.duration,
         }),
       });
 
@@ -42,6 +44,14 @@ export default function EditLicenseKeyPage({ licenseKey: initialLicenseKey, prod
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLicenseKey(prev => {
+      const updated = { ...prev, [name]: value };
+      return updated;
+    });
   };
 
   return (
@@ -64,8 +74,9 @@ export default function EditLicenseKeyPage({ licenseKey: initialLicenseKey, prod
             <input
               type="text"
               id="key"
+              name="key"
               value={licenseKey.key}
-              onChange={(e) => setLicenseKey({ ...licenseKey, key: e.target.value })}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
             />
@@ -77,8 +88,9 @@ export default function EditLicenseKeyPage({ licenseKey: initialLicenseKey, prod
             </label>
             <select
               id="product"
+              name="product"
               value={licenseKey.product}
-              onChange={(e) => setLicenseKey({ ...licenseKey, product: e.target.value })}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
             >
@@ -92,13 +104,35 @@ export default function EditLicenseKeyPage({ licenseKey: initialLicenseKey, prod
           </div>
 
           <div>
+            <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
+              Duration
+            </label>
+            <select
+              id="duration"
+              name="duration"
+              value={licenseKey.duration}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            >
+              <option value="">Select a duration</option>
+              {durations.map((duration) => (
+                <option key={duration._id} value={duration._id}>
+                  {duration.duration} {duration.durationUnit} ({duration.deviceCount} {duration.deviceType})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-700">
               Status
             </label>
             <select
               id="status"
+              name="status"
               value={licenseKey.status}
-              onChange={(e) => setLicenseKey({ ...licenseKey, status: e.target.value })}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
             >
@@ -144,8 +178,11 @@ export async function getServerSideProps(context) {
   const { id } = context.params;
 
   await dbConnect();
-  const licenseKey = await LicenseKey.findById(id);
-  const products = await Product.find({}, 'name');
+  const [licenseKey, products, durations] = await Promise.all([
+    LicenseKey.findById(id).lean(),
+    Product.find({}, 'name').lean(),
+    Duration.find({}).lean()
+  ]);
 
   if (!licenseKey) {
     return {
@@ -157,6 +194,7 @@ export async function getServerSideProps(context) {
     props: {
       licenseKey: JSON.parse(JSON.stringify(licenseKey)),
       products: JSON.parse(JSON.stringify(products)),
+      durations: JSON.parse(JSON.stringify(durations)),
     },
   };
 } 

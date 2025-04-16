@@ -12,10 +12,10 @@ const licenseKeySchema = new mongoose.Schema(
       ref: 'Product',
       required: true,
     },
-    status: {
-      type: String,
-      enum: ['active', 'inactive', 'used'],
-      default: 'active',
+    duration: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Duration',
+      required: true,
     },
     sold: {
       type: Boolean,
@@ -54,4 +54,4 @@ function generateLicenseKey() {
   return key;
 }
 
-export default mongoose.models.LicenseKey || mongoose.model('LicenseKey', licenseKeySchema); 
+export default mongoose.models.LicenseKey || mongoose.model('LicenseKey', licenseKeySchema);

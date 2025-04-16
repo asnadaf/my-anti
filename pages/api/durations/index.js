@@ -20,9 +20,9 @@ export default async function handler(req, res) {
         console.log('Content-Type:', req.headers['content-type']);
         
         // Validate required fields
-        const { deviceCount, deviceType, duration, durationUnit, label } = req.body;
+        const { deviceCount, deviceType, duration, durationUnit } = req.body;
         
-        if (!deviceCount || !deviceType || !duration || !durationUnit || !label) {
+        if (!deviceCount || !deviceType || !duration || !durationUnit ) {
           return res.status(400).json({ 
             success: false, 
             error: 'Missing required fields. Required: deviceCount, deviceType, duration, durationUnit, label' 

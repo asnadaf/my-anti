@@ -14,11 +14,20 @@ import {
 import { User, LogIn, Menu, X, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../../../lib/utils";
+import { useCart } from "../../../contexts/CartContext";
+import { Badge } from "../../../components/ui/badge";
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { getItemCount, cartItems } = useCart();
+  
+  // More detailed debugging
+  console.log("Cart count:", getItemCount());
+  console.log("Cart items:", cartItems);
+  console.log("Is cart empty?", cartItems.length === 0);
+  console.log("Should show count?", getItemCount() > 0);
 
   const navigationItems = [
     { name: "Products", href: "/products", description: "Browse our antivirus products" },
@@ -119,13 +128,23 @@ export default function Header() {
             </div>
           )}
           <ModeToggle />
-          <Button 
-            variant="ghost" 
-            size="icon"
-            aria-label="Shopping cart"
-          >
-            <ShoppingCart className="h-5 w-5" aria-hidden="true" />
-          </Button>
+          <Link href="/buyantivirus/cart">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="relative"
+              aria-label="Shopping cart"
+            >
+              <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+              {getItemCount() > 0 && (
+                <span 
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold z-10"
+                >
+                  {getItemCount()}
+                </span>
+              )}
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -201,13 +220,23 @@ export default function Header() {
               <ModeToggle />
             </div>
             <div className="flex justify-center pt-4">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                aria-label="Shopping cart"
-              >
-                <ShoppingCart className="h-5 w-5" aria-hidden="true" />
-              </Button>
+              <Link href="/buyantivirus/cart">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="relative"
+                  aria-label="Shopping cart"
+                >
+                  <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+                  {getItemCount() > 0 && (
+                    <span 
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold z-10"
+                    >
+                      {getItemCount()}
+                    </span>
+                  )}
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
