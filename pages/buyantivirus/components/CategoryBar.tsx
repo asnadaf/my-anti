@@ -59,9 +59,9 @@ const CategoryBar: React.FC<CategoryBarProps> = ({ categories = [] }) => {
     : defaultCategories;
 
   return (
-    <div className="bg-white border-b shadow-sm">
-      <div className="container mx-auto px-4 py-2 overflow-x-auto">
-        <div className="flex space-x-2 min-w-max">
+    <div className="bg-white border-b shadow-sm sticky top-0 z-10">
+      <div className="container mx-auto px-2 sm:px-4 py-2">
+        <div className="flex space-x-1 sm:space-x-2 overflow-x-auto pb-2 -mb-2 hide-scrollbar">
           {displayCategories.map((category) => {
             const Icon = category.icon;
             const isActive = pathname === category.href || 
@@ -74,11 +74,11 @@ const CategoryBar: React.FC<CategoryBarProps> = ({ categories = [] }) => {
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "flex items-center space-x-1 whitespace-nowrap",
+                    "flex items-center space-x-1 whitespace-nowrap text-xs sm:text-sm",
                     isActive && "bg-blue-50 text-blue-600 font-medium"
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span>{category.name}</span>
                 </Button>
               </Link>
@@ -86,6 +86,15 @@ const CategoryBar: React.FC<CategoryBarProps> = ({ categories = [] }) => {
           })}
         </div>
       </div>
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };

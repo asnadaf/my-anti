@@ -1,14 +1,20 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from "../components/ui/button";
 import { fetchProducts, fetchTopSellingProducts } from '../lib/products';
-import { ShoppingCart, Award, Clock, Shield, Zap, Check, Tag } from 'lucide-react';
+import { ShoppingCart, Award, Clock, Shield, Zap, Check, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 import Footer from "@components/Footer";
+import ProductCarousel from '../components/ProductCarousel';
 
-export default function Home({ topSellingProducts = [], multiUserProducts = [], featuredProducts = [] }) {
+export default function Home({ 
+  featuredProducts = [], 
+  hotProducts = [], 
+  trendingProducts = [], 
+  newProducts = [] 
+}) {
   // Structured data for better SEO
   const websiteStructuredData = {
     "@context": "https://schema.org",
@@ -44,22 +50,22 @@ export default function Home({ topSellingProducts = [], multiUserProducts = [], 
   const productsStructuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": topSellingProducts.map((product, index) => ({
+    "itemListElement": featuredProducts.map((product, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "item": {
-    "@type": "Product",
+        "@type": "Product",
         "name": product.name,
         "image": product.image,
         "description": `${product.name} - ${product.brand} antivirus protection for ${product.duration?.period || '1 Year'}`,
-    "brand": {
-      "@type": "Brand",
+        "brand": {
+          "@type": "Brand",
           "name": product.brand
-    },
-    "offers": {
+        },
+        "offers": {
           "@type": "Offer",
           "price": product.discountPrice,
-      "priceCurrency": "USD",
+          "priceCurrency": "INR",
           "availability": "https://schema.org/InStock",
           "url": `https://securekeymaster.com/buyantivirus/products/${product.slug}`
         }
@@ -264,125 +270,17 @@ export default function Home({ topSellingProducts = [], multiUserProducts = [], 
           </div>
         </section>
 
-        {/* Hot Selling Products */}
-        <section className="py-12 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">Hot Selling Products</h2>
-              <Link href="/buyantivirus/products" className="text-blue-600 hover:underline flex items-center">
-                View All <span className="ml-1">→</span>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {topSellingProducts.slice(0, 8).map((product) => (
-                <ProductCard key={product.id || product._id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Product Carousels */}
+        <ProductCarousel
+          title="Featured Products"
+          products={featuredProducts}
+        />
 
-        {/* Category Navigation */}
-        <section className="py-12 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Browse by Category</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[
-                { name: "Antivirus", path: "/buyantivirus/products?category=antivirus" },
-                { name: "Total Protection", path: "/buyantivirus/products?category=total-protection" },
-                { name: "Internet Security", path: "/buyantivirus/products?category=internet-security" },
-                { name: "Mobile Security", path: "/buyantivirus/products?category=mobile" }
-              ].map((category) => (
-                <Link href={category.path} key={category.name} className="group">
-                  <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all">
-                    <div className="mb-4 flex justify-center">
-                      <Shield className="h-10 w-10 text-blue-600 group-hover:text-blue-700 transition-colors" />
-                    </div>
-                    <h3 className="text-center font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{category.name}</h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ProductCarousel
+          title="Hot Deals"
+          products={hotProducts}
+        />
 
-        {/* Multi Users */}
-        <section className="py-12 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">Multi-User Deals</h2>
-              <Link href="/buyantivirus/products?users=multi" className="text-blue-600 hover:underline flex items-center">
-                View All <span className="ml-1">→</span>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-              {multiUserProducts.slice(0, 6).map((product) => (
-                <div key={product.id || product._id} className="bg-white border rounded-lg shadow-sm overflow-hidden">
-                  <div className="p-4">
-                    <span className="text-xs text-gray-500 block mb-1">{product.devices || 10}PC / {product.duration?.period || "1 Year"}</span>
-                    <h3 className="font-bold text-sm line-clamp-2 h-10">{product.name}</h3>
-                    <div className="mt-3 flex flex-col">
-                      <span className="text-base font-bold text-blue-600">
-                        ₹{product.discountPrice?.toFixed(2) || '0.00'}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-xs text-gray-400 line-through">
-                          ₹{product.originalPrice.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Popular Brands */}
-        <section className="py-12 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Popular Brands</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
-              {['Norton', 'McAfee', 'Bitdefender', 'Kaspersky', 'ESET', 'AVG'].map((brand) => (
-                <Link href={`/buyantivirus/products?brand=${brand.toLowerCase()}`} key={brand} className="group">
-                  <div className="bg-white p-4 rounded-lg border hover:shadow-md transition-all flex flex-col items-center">
-                    <div className="w-16 h-16 mb-2 flex items-center justify-center">
-                      <Image 
-                        src={`/images/brands/${brand.toLowerCase()}.png`}
-                        alt={brand}
-                        width={64}
-                        height={64}
-                        className="object-contain"
-                      />
-                    </div>
-                    <h3 className="text-center font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{brand}</h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Products */}
-        <section className="py-12 bg-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Recommended for you</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {featuredProducts.slice(0, 10).map((product) => (
-                <div key={product.id || product._id} className="bg-white border rounded-lg shadow-sm overflow-hidden">
-                  <div className="p-4">
-                    <span className="text-xs text-gray-500 block mb-1">{product.duration?.devices || 1}PC / {product.duration?.period || "1 Year"}</span>
-                    <h3 className="font-bold text-sm line-clamp-2 h-10">{product.name}</h3>
-                    <div className="mt-3">
-                      <span className="text-base font-bold text-blue-600 block">
-                        ₹{product.discountPrice?.toFixed(2) || '0.00'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Trust Section */}
         <section className="py-12 bg-gray-50">
@@ -413,6 +311,16 @@ export default function Home({ topSellingProducts = [], multiUserProducts = [], 
             </div>
           </div>
         </section>
+        
+        <ProductCarousel
+          title="Trending Now"
+          products={trendingProducts}
+        />
+
+        <ProductCarousel
+          title="New Arrivals"
+          products={newProducts}
+        />
 
         {/* FAQ Section */}
         <section className="py-16 bg-white">
@@ -459,35 +367,52 @@ export default function Home({ topSellingProducts = [], multiUserProducts = [], 
 
         <Footer />
       </main>
+
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </>
   );
 }
 
 // Server-side rendering with getServerSideProps
-export async function getServerSideProps(context) {
+export async function getServerSideProps() {
   try {
-    // Fetch top selling products and multi-user products
-    const [topSellingProducts, multiUserData, featuredData] = await Promise.all([
-      fetchTopSellingProducts(8),
-      fetchProducts({ minDevices: 5, limit: 6 }),
-      fetchProducts({ featured: true, limit: 10 })
+    const [
+      featuredProducts,
+      hotDealsProducts,
+      trendingProducts,
+      newProducts
+    ] = await Promise.all([
+      fetchProducts({ tag: 'Featured' }),
+      fetchProducts({ tag: 'Top' }),
+      fetchProducts({ tag: 'Trending' }),
+      fetchProducts({ tag: 'New' })
     ]);
-    
+
     return {
       props: {
-        topSellingProducts: topSellingProducts || [],
-        multiUserProducts: multiUserData?.products || [],
-        featuredProducts: featuredData?.products || []
-      },
+        featuredProducts: featuredProducts.products,
+        hotDealsProducts: hotDealsProducts.products,
+        trendingProducts: trendingProducts.products,
+        newProducts: newProducts.products
+      }
     };
   } catch (error) {
-    console.error('Error in getServerSideProps:', error);
+    console.error('Error fetching products:', error);
     return {
       props: {
-        topSellingProducts: [],
-        multiUserProducts: [],
-        featuredProducts: []
-      },
+        featuredProducts: [],
+        hotDealsProducts: [],
+        trendingProducts: [],
+        newProducts: []
+      }
     };
   }
 }

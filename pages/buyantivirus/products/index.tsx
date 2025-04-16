@@ -46,18 +46,21 @@ interface ProductsPageProps {
   categories: Category[];
 }
 
-export default function BuyAntivirusPage({ products: initialProducts, categories }: ProductsPageProps) {
+export default function BuyAntivirusPage({ products: initialProducts = [], categories = [] }: ProductsPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState<Product[]>(Array.isArray(initialProducts) ? initialProducts : []);
 
-  const filteredProducts = products
-    .filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Ensure products is always an array
+  const productsArray = Array.isArray(products) ? products : [];
+  
+  const filteredProducts = productsArray
+    .filter(product => product?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
     .filter(product => {
       if (selectedFilter === 'all') return true;
-      if (selectedFilter === 'popular') return product.popular;
-      if (selectedFilter === 'under30') return product.discountPrice < 30;
-      if (selectedFilter === 'multidevice') return product.devices > 3;
+      if (selectedFilter === 'popular') return product?.popular;
+      if (selectedFilter === 'under30') return product?.discountPrice < 30;
+      if (selectedFilter === 'multidevice') return product?.devices > 3;
       return true;
     });
 

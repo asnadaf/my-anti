@@ -256,42 +256,64 @@ export default function ProductDetailsPage({ product, error }: ProductDetailsPag
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps = async ({ params, req }) => {
   const slug = params?.slug as string;
   
   if (!slug) {
     return {
-      props: {
-        product: null,
-        error: "No product slug provided"
-      }
+      redirect: {
+        destination: '/buyantivirus/products',
+        permanent: false,
+      },
     };
   }
 
   try {
-    const product = await fetchProductBySlug(slug);
+    const decodedSlug = decodeURIComponent(slug);
+    const product = await fetchProductBySlug(decodedSlug);
 
     if (!product) {
       return {
-        props: {
-          product: null,
-          error: `Product with slug "${slug}" not found`
-        }
+        redirect: {
+          destination: '/buyantivirus/products',
+          permanent: false,
+        },
       };
     }
 
+    // Ensure all required fields are present
+    const sanitizedProduct = {
+      ...product,
+      _id: product._id || '',
+      name: product.name || '',
+      slug: product.slug || decodedSlug,
+      description: product.description || '',
+      discountPrice: product.discountPrice || 0,
+      originalPrice: product.originalPrice || 0,
+      features: Array.isArray(product.features) ? product.features : [],
+      image: product.image || '/placeholder-image.jpg',
+      brand: product.brand || '',
+      category: product.category || { _id: '', name: '' },
+      rating: product.rating || 0,
+      reviews: product.reviews || 0,
+      inStock: Boolean(product.inStock),
+      sku: product.sku || '',
+      devices: product.devices || 1,
+      duration: product.duration || '1 Year'
+    };
+
     return {
       props: {
-        product,
+        product: sanitizedProduct,
       },
     };
   } catch (error) {
     console.error('Error fetching product:', error);
     return {
-      props: {
-        product: null,
-        error: "An error occurred while fetching the product"
-      }
+      redirect: {
+        destination: '/buyantivirus/products',
+        permanent: false,
+      },
     };
   }
 };

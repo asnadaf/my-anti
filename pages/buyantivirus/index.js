@@ -5,6 +5,8 @@ import { fetchTopProduct, fetchFilteredProducts } from '@lib/products';
 import FilterBar from '../../components/FilterBar';
 import ProductGrid from '../../components/products/ProductGrid';
 import SortBar from '../../components/products/SortBar';
+import ProductCarousel from './components/ProductCarousel';
+import ProductCard from '../../components/products/ProductCard';
 
 export default function BuyAntivirusPage({ 
   topProduct, 
@@ -286,6 +288,11 @@ export default function BuyAntivirusPage({
     }))
   };
 
+  // Filter products for carousels
+  const hotDeals = products?.filter(product => product.discount > 30) || [];
+  const recommendedProducts = products?.filter(product => product.rating && product.rating >= 4.5) || [];
+  const topProducts = products?.filter(product => product.popular) || [];
+
   return (
     <>
       <Head>
@@ -377,13 +384,37 @@ export default function BuyAntivirusPage({
             </div>
           )}
 
-          {/* Page Header - More compact */}
+          {/* Page Header */}
           <div className="mb-3 sm:mb-4">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1">Antivirus Software</h1>
             <p className="text-xs sm:text-sm text-gray-600 max-w-3xl">
               Find the best antivirus protection for your devices. Browse our selection of premium security solutions from top brands.
             </p>
           </div>
+
+          {/* Hot Deals Carousel */}
+          <ProductCarousel
+            title="Hot Deals"
+            products={hotDeals}
+            tag="Limited Time"
+            tagColor="bg-red-600"
+          />
+
+          {/* Recommended Products Carousel */}
+          <ProductCarousel
+            title="Recommended For You"
+            products={recommendedProducts}
+            tag="Top Rated"
+            tagColor="bg-green-600"
+          />
+
+          {/* Top Products Carousel */}
+          <ProductCarousel
+            title="Top Products"
+            products={topProducts}
+            tag="Popular"
+            tagColor="bg-blue-600"
+          />
           
           {/* Mobile Filter Toggle Button */}
           <div className="lg:hidden mb-2">
@@ -398,10 +429,12 @@ export default function BuyAntivirusPage({
             </button>
           </div>
           
-          <div className="flex flex-col lg:flex-row gap-2 sm:gap-3 md:gap-4">
+          <div className="relative flex flex-col lg:flex-row gap-2 sm:gap-3 md:gap-4">
             {/* Filters Sidebar - Hidden on mobile unless toggled */}
-            <div className={`${isMobileFilterOpen ? 'block' : 'hidden'} lg:block lg:w-1/5 sticky top-16 self-start mb-3 lg:mb-0`}>
-              <FilterBar />
+            <div className={`${isMobileFilterOpen ? 'block' : 'hidden'} lg:block lg:w-1/5 h-fit bg-white`}>
+              <div className="sticky top-0 pt-2">
+                <FilterBar />
+              </div>
             </div>
             
             {/* Main Content - Wider on desktop for 4 items per row */}
@@ -420,11 +453,13 @@ export default function BuyAntivirusPage({
                     <div className="loader rounded-full border-4 border-t-4 border-gray-200 border-t-blue-600 w-8 h-8 animate-spin"></div>
                   </div>
                 )}
-                <ProductGrid 
-                  key={`${sortOption}-${paginationState.currentPage}`}
-                  products={products} 
-                  isLoading={false} // We're handling loading state differently now
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+                  {products.map((product) => (
+                    <div key={product.id || product._id} className="h-[100px] sm:h-auto">
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
               </div>
               
               {/* Pagination Section */}
