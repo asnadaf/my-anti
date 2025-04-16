@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@lib/db';
 import LicenseKey from '@models/LicenseKey';
+import Product from '@models/Product';
 import { requireAuth } from '@lib/auth';
 
 export default async function handler(req, res) {
@@ -36,12 +37,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'License key already exists' });
     }
 
+    // Find the product to update its stock count
+    const productDoc = await Product.findById(product);
+    if (!productDoc) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Create the license key
     const licenseKey = await LicenseKey.create({
       key,
       status: status || 'active',
       product,
       duration,
     });
+
+    // Increase product stock count
+    productDoc.stockCount += 1;
+    await productDoc.save();
 
     return res.status(201).json(licenseKey);
   } catch (error) {

@@ -6,8 +6,9 @@ import dbConnect from '@lib/db';
 import Product from '@models/Product';
 import Category from '@models/Category';
 import { requireAuth } from '@lib/auth';
+import Duration from '@models/Duration';
 
-export default function EditProductPage({ product: initialProduct, categories }) {
+export default function EditProductPage({ product: initialProduct, categories, durations }) {
   const [product, setProduct] = useState({
     ...initialProduct,
     features: initialProduct.features || [],
@@ -218,6 +219,23 @@ export default function EditProductPage({ product: initialProduct, categories })
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700">Duration</label>
+                <select
+                  name="duration"
+                  value={product.duration || ''}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                >
+                  <option value="">Select a duration</option>
+                  {durations?.map((duration) => (
+                    <option key={duration._id} value={duration._id}>
+                      {duration.duration} {duration.durationUnit} ({duration.deviceCount} {duration.deviceType})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700">Image URL</label>
                 <input
                   type="url"
@@ -298,12 +316,14 @@ export async function getServerSideProps(context) {
   await dbConnect();
 
   try {
-    const [product, categories] = await Promise.all([
+    const [product, categories, durations] = await Promise.all([
       Product.findById(id)
         .populate('category', 'name _id')
         .lean(),
       Category.find({})
         .select('name _id')
+        .lean(),
+      Duration.find({})
         .lean()
     ]);
 
@@ -317,6 +337,7 @@ export async function getServerSideProps(context) {
       props: {
         product: JSON.parse(JSON.stringify(product)),
         categories: JSON.parse(JSON.stringify(categories)),
+        durations: JSON.parse(JSON.stringify(durations)),
       },
     };
   } catch (error) {

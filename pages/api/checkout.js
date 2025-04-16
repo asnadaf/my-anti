@@ -30,10 +30,15 @@ export default async function handler(req, res) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
+    // Check if product has enough stock
+    if (product.stockCount < quantity) {
+      return res.status(400).json({ message: 'Insufficient product stock available' });
+    }
+
     // Find available license keys
     const availableKeys = await LicenseKey.find({
       product: productId,
-      status: 'available',
+      sold: false,
     }).limit(quantity);
 
     if (availableKeys.length < quantity) {
@@ -45,19 +50,22 @@ export default async function handler(req, res) {
       user: auth.userId,
       product: productId,
       quantity,
-      total: product.price * quantity,
+      total: product.discountPrice || product.originalPrice * quantity,
       status: 'completed',
     });
 
     // Update license keys and send them
     const licenseKeys = [];
     for (const key of availableKeys) {
-      key.status = 'sold';
+      key.sold = true;
       key.order = order._id;
-      key.soldAt = new Date();
       await key.save();
       licenseKeys.push(key.key);
     }
+
+    // Decrease product stock count
+    product.stockCount -= quantity;
+    await product.save();
 
     // Send license keys via email and SMS
     const deliveryResult = await sendLicenseKey({
