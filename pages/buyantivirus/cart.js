@@ -57,7 +57,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem }) => {
 };
 
 // Checkout form component
-const CheckoutForm = ({ total, onCheckout }) => {
+const CheckoutForm = ({ total, onCheckout, isProcessing }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -247,6 +247,7 @@ const CheckoutForm = ({ total, onCheckout }) => {
         </div>
         <button
           type="submit"
+          disabled={isProcessing}
           className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           <Lock className="h-4 w-4 mr-2" />
@@ -262,22 +263,234 @@ export default function CartDashboard() {
   const router = useRouter();
   const { cartItems, isLoading, updateQuantity, removeItem, calculateTotal, clearCart } = useCart();
   const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [availabilityData, setAvailabilityData] = useState(null);
+  const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
 
-  const handleCheckout = (formData) => {
-    // In a real app, this would process the payment and create an order
-    console.log('Processing checkout with:', formData);
+  const checkAvailability = async (formData) => {
+    setIsProcessing(true);
     
-    // Clear the cart after successful checkout
-    clearCart();
+    try {
+      // Prepare the data for the API
+      const checkoutData = {
+        items: cartItems,
+        shippingInfo: {
+          name: formData.name,
+          email: formData.email,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode
+        },
+        paymentInfo: {
+          cardNumber: formData.cardNumber,
+          expiryDate: formData.expiryDate,
+          cvv: formData.cvv
+        },
+        confirmOrder: false // This is just a check
+      };
+      
+      // Call the checkout API for availability check
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkoutData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to check availability');
+      }
+      
+      const data = await response.json();
+      setAvailabilityData(data);
+      
+      // Always show the modal, regardless of availability
+      setShowAvailabilityModal(true);
+      
+      // If no items are available, show a toast notification
+      if (!data.canProceed) {
+        toast({
+          title: "No items available",
+          description: "None of the items in your cart are available for purchase.",
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error('Availability check error:', error);
+      toast({
+        title: "Check failed",
+        description: error.message || "There was an error checking item availability. Please try again.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const completeOrder = async (formData) => {
+    setIsProcessing(true);
     
-    toast({
-      title: "Order placed successfully!",
-      description: "Thank you for your purchase. You will be redirected to the confirmation page.",
-      duration: 3000,
-    });
+    try {
+      // Prepare the data for the API
+      const checkoutData = {
+        items: cartItems,
+        shippingInfo: {
+          name: formData.name,
+          email: formData.email,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode
+        },
+        paymentInfo: {
+          cardNumber: formData.cardNumber,
+          expiryDate: formData.expiryDate,
+          cvv: formData.cvv
+        },
+        confirmOrder: true // This is the actual order
+      };
+      
+      // Call the checkout API
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkoutData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to process checkout');
+      }
+      
+      const result = await response.json();
+      
+      // Clear the cart after successful checkout
+      clearCart();
+      
+      toast({
+        title: "Order placed successfully!",
+        description: "Thank you for your purchase. You will be redirected to the confirmation page.",
+        duration: 3000,
+      });
+      
+      // Redirect to order confirmation page with order ID
+      router.push(`/buyantivirus/order-confirmation?orderId=${result.orderId}`);
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Checkout failed",
+        description: error.message || "There was an error processing your order. Please try again.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setIsProcessing(false);
+      setShowAvailabilityModal(false);
+    }
+  };
+
+  // Availability confirmation modal
+  const AvailabilityModal = () => {
+    if (!availabilityData) return null;
     
-    // Redirect to order confirmation page
-    router.push('/buyantivirus/order-confirmation');
+    const { availableItems, unavailableItems, total, canProceed } = availabilityData;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+          <h2 className="text-xl font-bold mb-4">Item Availability</h2>
+          
+          {!canProceed && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+              <h3 className="text-lg font-medium text-red-600 mb-2">No Items Available</h3>
+              <p className="text-gray-700">
+                Unfortunately, none of the items in your cart are currently available for purchase. 
+                Please remove unavailable items or try again later.
+              </p>
+            </div>
+          )}
+          
+          {unavailableItems.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-lg font-medium text-red-600 mb-2">Unavailable Items</h3>
+              <ul className="space-y-2">
+                {unavailableItems.map((item) => (
+                  <li key={item.id} className="flex justify-between">
+                    <span>{item.name}</span>
+                    <span className="text-red-600">
+                      {item.message || `Requested: ${item.requested}, In Stock: ${item.inStock}, Available Keys: ${item.availableKeys}`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {availableItems.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-lg font-medium text-green-600 mb-2">Available Items</h3>
+              <ul className="space-y-2">
+                {availableItems.map((item) => (
+                  <li key={item.id} className="flex justify-between">
+                    <span>{item.name} (Qty: {item.requested})</span>
+                    <span>${item.total.toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="border-t border-gray-200 my-2 pt-2">
+                <div className="flex justify-between font-bold">
+                  <span>Total</span>
+                  <span>${total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="flex justify-end space-x-4 mt-6">
+            <button
+              onClick={() => setShowAvailabilityModal(false)}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              {canProceed ? 'Cancel' : 'Close'}
+            </button>
+            
+            {canProceed && (
+              <button
+                onClick={() => {
+                  // Get the form data from the CheckoutForm
+                  const form = document.querySelector('form');
+                  if (form) {
+                    const formData = new FormData(form);
+                    const data = {};
+                    for (const [key, value] of formData.entries()) {
+                      data[key] = value;
+                    }
+                    completeOrder(data);
+                  } else {
+                    toast({
+                      title: "Error",
+                      description: "Could not find form data. Please try again.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                disabled={isProcessing}
+              >
+                {isProcessing ? 'Processing...' : 'Proceed with Available Items'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -335,13 +548,19 @@ export default function CartDashboard() {
               {/* Checkout Section - Takes up 1/3 of the space */}
               <div className="lg:col-span-1">
                 <div className="bg-white rounded-lg shadow p-6 sticky top-6">
-                  <CheckoutForm total={calculateTotal()} onCheckout={handleCheckout} />
+                  <CheckoutForm 
+                    total={calculateTotal()} 
+                    onCheckout={checkAvailability} 
+                    isProcessing={isProcessing}
+                  />
                 </div>
               </div>
             </div>
           )}
         </div>
       </div>
+      
+      {showAvailabilityModal && <AvailabilityModal />}
     </>
   );
 } 
