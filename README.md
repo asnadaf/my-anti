@@ -10,6 +10,7 @@ A full-stack e-commerce platform built with Next.js, MongoDB, and Tailwind CSS. 
 - Admin dashboard for managing categories, products, and users
 - Client dashboard for browsing and purchasing products
 - License key management and delivery system
+- Product filtering by security feature, brand, duration, and price range
 - SEO optimization with dynamic meta tags and JSON-LD
 - Responsive design with Tailwind CSS and shadcn/ui
 - Dark mode support
@@ -67,6 +68,32 @@ A full-stack e-commerce platform built with Next.js, MongoDB, and Tailwind CSS. 
    npm start
    ```
 
+## Development Tools
+
+### Database Seeding
+
+The project includes tools for seeding the database with sample data:
+
+1. Using the CLI:
+   ```bash
+   npm run seed
+   ```
+
+2. Using the API endpoint (development only):
+   ```bash
+   curl -X POST http://localhost:3000/api/seed \
+     -H "Authorization: your-seed-auth-key"
+   ```
+
+Make sure to set `SEED_AUTH_KEY` in your `.env.local` file to use the API endpoint.
+
+### Testing Models
+
+Test the Product model initialization:
+```bash
+npm run test:model
+```
+
 ## Project Structure
 
 ```
@@ -86,6 +113,7 @@ my-app/
 - `/api/products` - Product management
 - `/api/orders` - Order processing
 - `/api/keys` - License key management
+- `/api/seed` - Database seeding (development only)
 
 ## Contributing
 

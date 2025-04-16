@@ -24,6 +24,10 @@ const ProductCard = ({ product }) => {
     );
   }
   
+  // Safely extract duration info
+  const deviceCount = product.duration?.devices || 1;
+  const durationPeriod = product.duration?.period || '1 Year';
+  
   return (
     <div className="border rounded-lg shadow-sm bg-white flex flex-col h-full hover:shadow-md transition-shadow">
       {/* Product Image - Always on top */}
@@ -41,7 +45,7 @@ const ProductCard = ({ product }) => {
             <span className="text-gray-400 text-xs">No image</span>
           </div>
         )}
-        {product.tag && (
+        {product.tag && product.tag !== 'None' && (
           <span className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
             {product.tag}
           </span>
@@ -53,11 +57,14 @@ const ProductCard = ({ product }) => {
         {/* Product Title */}
         <h3 className="font-semibold text-sm line-clamp-1">{product.name}</h3>
         
-        {/* Brand & License Info */}
+        {/* Brand & Security Feature & License Info */}
         <div className="flex flex-wrap items-center my-1">
-          <span className="text-xs text-gray-500 mr-2">{product.category?.name || 'Antivirus'}</span>
+          <span className="text-xs text-gray-500 mr-2">{product.brand || 'Brand'}</span>
+          <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded mr-2">
+            {product.securityFeature || 'Antivirus'}
+          </span>
           <span className="text-xs text-gray-500">
-            {product.devices} {product.devices === 1 ? 'Device' : 'Devices'} • {product.duration}
+            {deviceCount} {deviceCount === 1 ? 'Device' : 'Devices'} • {durationPeriod}
           </span>
         </div>
         

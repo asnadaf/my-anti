@@ -35,4 +35,11 @@ DurationSchema.pre('save', function(next) {
   next();
 });
 
-export default mongoose.models.Duration || mongoose.model('Duration', DurationSchema); 
+// Fix for the "Cannot read properties of undefined (reading 'Duration')" error
+// Using a safer pattern for Next.js that ensures mongoose.models exists
+const DurationModel = (mongoose.models && mongoose.models.Duration) 
+  ? mongoose.models.Duration 
+  : mongoose.model('Duration', DurationSchema);
+
+export default DurationModel;
+

@@ -8,8 +8,9 @@ const ProductSchema = new mongoose.Schema({
   },
   slug: {
     type: String,
-    required: true,
+    required: [true, 'Please provide a unique slug for this product.'],
     unique: true,
+    trim: true,
   },
   description: {
     type: String,
@@ -50,7 +51,17 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     enum: ['Featured', 'Top', 'Trending', 'Best Seller', 'New', 'None'],
     default: 'None',
-  },  
+  },
+  securityFeature: {
+    type: String,
+    enum: ['Antivirus', 'Total Protection', 'Internet Security', 'Mobile', 'Server Security'],
+    required: [true, 'Please select a security feature type'],
+  },
+  brand: {
+    type: String,
+    enum: ['Kaspersky', 'Norton', 'McAfee', 'Bitdefender', 'AVAST', 'AVG', 'ESET', 'Other'],
+    required: [true, 'Please select a brand'],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -59,15 +70,6 @@ const ProductSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
-
-// Create slug from name
-ProductSchema.pre('save', function(next) {
-  this.slug = this.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '');
-  next();
 });
 
 // Update updatedAt timestamp
@@ -82,4 +84,10 @@ ProductSchema.pre('save', function(next) {
   next();
 });
 
-export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
+// Fix for the "Cannot read properties of undefined (reading 'Product')" error
+// Using a safer pattern for Next.js that ensures mongoose.models exists
+const ProductModel = (mongoose.models && mongoose.models.Product) 
+  ? mongoose.models.Product 
+  : mongoose.model('Product', ProductSchema);
+
+export default ProductModel;

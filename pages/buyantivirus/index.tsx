@@ -1,6 +1,7 @@
 import Head from 'next/head';
-import { useState } from 'react';
-import { fetchTopProduct, fetchFeaturedProducts } from '@lib/products';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { fetchTopProduct, fetchFilteredProducts } from '@lib/products';
 import FilterBar from '../../components/FilterBar';
 import ProductGrid from '../../components/products/ProductGrid';
 import SortBar from '../../components/products/SortBar';
@@ -15,23 +16,71 @@ interface Product {
     name: string;
     _id: string;
   };
+  securityFeature: string;
+  brand: string;
   features: string[];
   image: string;
   tag: string;
-  duration: string;
-  devices: number;
+  duration: {
+    name: string;
+    devices: number;
+    period: string;
+    _id: string;
+  };
   slug: string;
 }
 
 interface BuyAntivirusPageProps {
   topProduct: Product | null;
-  featuredProducts: Product[];
+  initialProducts: Product[];
+  totalCount: number;
 }
 
-export default function BuyAntivirusPage({ topProduct, featuredProducts }: BuyAntivirusPageProps) {
+export default function BuyAntivirusPage({ topProduct, initialProducts, totalCount }: BuyAntivirusPageProps) {
+  const router = useRouter();
   const [sortOption, setSortOption] = useState('relevance');
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [productCount, setProductCount] = useState(totalCount);
+
+  // When sort option or URL query params change, fetch filtered products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!router.isReady) return;
+      
+      setIsLoading(true);
+      try {
+        // Extract filter parameters from URL
+        const { security, brand, duration, minPrice, maxPrice, page = '1' } = router.query;
+        
+        // Call API to get filtered products
+        const { products: filteredProducts, totalCount } = await fetchFilteredProducts({
+          security: security as string,
+          brand: brand as string,
+          duration: duration as string,
+          minPrice: minPrice as string,
+          maxPrice: maxPrice as string,
+          sortBy: sortOption,
+          page: parseInt(page as string),
+        });
+        
+        setProducts(filteredProducts);
+        setProductCount(totalCount);
+      } catch (error) {
+        console.error('Error fetching filtered products:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, [router.query, sortOption, router.isReady]);
+
+  // Handle sort change
+  const handleSortChange = (option: string) => {
+    setSortOption(option);
+  };
 
   // Structured data for better SEO
   const structuredData = {
@@ -45,7 +94,7 @@ export default function BuyAntivirusPage({ topProduct, featuredProducts }: BuyAn
   const productStructuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": featuredProducts.map((product, index) => ({
+    "itemListElement": products.map((product, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "item": {
@@ -54,7 +103,7 @@ export default function BuyAntivirusPage({ topProduct, featuredProducts }: BuyAn
         "description": product.description,
         "brand": {
           "@type": "Brand",
-          "name": product.category.name
+          "name": product.brand
         },
         "offers": {
           "@type": "Offer",
@@ -147,14 +196,14 @@ export default function BuyAntivirusPage({ topProduct, featuredProducts }: BuyAn
             <div className="lg:w-4/5">
               {/* Sort Bar */}
               <SortBar 
-                totalProducts={featuredProducts.length} 
+                totalProducts={productCount} 
                 sortOption={sortOption} 
-                onSortChange={setSortOption} 
+                onSortChange={handleSortChange} 
               />
               
               {/* Products Grid */}
               <ProductGrid 
-                products={featuredProducts} 
+                products={products} 
                 isLoading={isLoading} 
               />
               
@@ -187,16 +236,47 @@ export default function BuyAntivirusPage({ topProduct, featuredProducts }: BuyAn
 }
 
 // Server-side rendering with getServerSideProps
-export async function getServerSideProps() {
-  const [topProduct, featuredProducts] = await Promise.all([
-    fetchTopProduct(),
-    fetchFeaturedProducts()
-  ]);
+export async function getServerSideProps(context) {
+  const { query } = context;
+  const { 
+    security, 
+    brand, 
+    duration, 
+    minPrice, 
+    maxPrice, 
+    page = '1' 
+  } = query;
 
-  return {
-    props: {
-      topProduct,
-      featuredProducts
-    },
-  };
+  try {
+    // Get initial data based on any filter params in the URL
+    const [topProduct, { products, totalCount }] = await Promise.all([
+      fetchTopProduct(),
+      fetchFilteredProducts({
+        security,
+        brand,
+        duration,
+        minPrice,
+        maxPrice,
+        sortBy: 'relevance',
+        page: parseInt(page),
+      })
+    ]);
+
+    return {
+      props: {
+        topProduct,
+        initialProducts: products,
+        totalCount,
+      },
+    };
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+    return {
+      props: {
+        topProduct: null,
+        initialProducts: [],
+        totalCount: 0,
+      },
+    };
+  }
 }

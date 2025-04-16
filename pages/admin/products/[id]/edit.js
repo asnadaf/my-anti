@@ -14,10 +14,34 @@ export default function EditProductPage({ product: initialProduct, categories, d
     features: initialProduct.features || [],
     status: initialProduct.status || 'active',
     image: initialProduct.image || '',
+    securityFeature: initialProduct.securityFeature || 'Antivirus',
+    brand: initialProduct.brand || 'Other',
+    slug: initialProduct.slug || '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  // Security feature options - from Product model
+  const securityOptions = [
+    'Antivirus',
+    'Total Protection',
+    'Internet Security',
+    'Mobile',
+    'Server Security',
+  ];
+
+  // Brand options - from Product model
+  const brandOptions = [
+    'Kaspersky',
+    'Norton',
+    'McAfee',
+    'Bitdefender',
+    'AVAST',
+    'AVG',
+    'ESET',
+    'Other',
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,6 +100,19 @@ export default function EditProductPage({ product: initialProduct, categories, d
     }));
   };
 
+  // Helper function to generate slug from name
+  const generateSlug = () => {
+    const slug = product.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+    
+    setProduct(prev => ({
+      ...prev,
+      slug
+    }));
+  };
+
   return (
     <>
       <SEO title="Edit Product" />
@@ -128,6 +165,28 @@ export default function EditProductPage({ product: initialProduct, categories, d
               </div>
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Slug</label>
+                  <div className="mt-1 flex rounded-md shadow-sm">
+                    <input
+                      type="text"
+                      name="slug"
+                      value={product.slug}
+                      onChange={handleChange}
+                      className="block w-full rounded-l-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={generateSlug}
+                      className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100"
+                    >
+                      Generate
+                    </button>
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">URL-friendly identifier (e.g., "norton-360-deluxe")</p>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Discount Price (Optional)</label>
                   <input
@@ -189,6 +248,42 @@ export default function EditProductPage({ product: initialProduct, categories, d
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Security Feature</label>
+                  <select
+                    name="securityFeature"
+                    value={product.securityFeature}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                  >
+                    {securityOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Brand</label>
+                  <select
+                    name="brand"
+                    value={product.brand}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                  >
+                    {brandOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
                   <label className="block text-sm font-medium text-gray-700">Tag</label>
                   <select
                     name="tag"
@@ -229,7 +324,7 @@ export default function EditProductPage({ product: initialProduct, categories, d
                   <option value="">Select a duration</option>
                   {durations?.map((duration) => (
                     <option key={duration._id} value={duration._id}>
-                      {duration.duration} {duration.durationUnit} ({duration.deviceCount} {duration.deviceType})
+                      {duration.devices} {duration.devices > 1 ? 'Devices' : 'Device'} / {duration.period}
                     </option>
                   ))}
                 </select>
@@ -248,19 +343,19 @@ export default function EditProductPage({ product: initialProduct, categories, d
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Features</label>
-                <div className="mt-2 space-y-2">
-                  {(product.features || []).map((feature, index) => (
+                <div className="mt-1 space-y-3">
+                  {product.features?.map((feature, index) => (
                     <div key={index} className="flex gap-2">
                       <input
                         type="text"
                         value={feature}
                         onChange={(e) => handleFeatureChange(index, e.target.value)}
-                        className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                       />
                       <button
                         type="button"
                         onClick={() => removeFeature(index)}
-                        className="px-3 py-2 text-sm font-medium text-red-600 hover:text-red-800"
+                        className="inline-flex items-center p-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
                       >
                         Remove
                       </button>
@@ -269,27 +364,22 @@ export default function EditProductPage({ product: initialProduct, categories, d
                   <button
                     type="button"
                     onClick={addFeature}
-                    className="mt-2 px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
                   >
                     Add Feature
                   </button>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={() => router.push('/admin/products')}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
+              <div className="flex justify-end">
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                  className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 ${
+                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                  {isLoading ? 'Saving...' : 'Save Product'}
                 </button>
               </div>
             </form>
@@ -301,8 +391,10 @@ export default function EditProductPage({ product: initialProduct, categories, d
 }
 
 export async function getServerSideProps(context) {
-  const auth = await requireAuth(context.req, context.res);
-  if (!auth || auth.role !== 'admin') {
+  const { id } = context.params;
+  const { user } = await requireAuth(context);
+
+  if (!user || user.role !== 'admin') {
     return {
       redirect: {
         destination: '/auth/login',
@@ -311,20 +403,13 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const { id } = context.params;
-
-  await dbConnect();
-
   try {
+    await dbConnect();
+
     const [product, categories, durations] = await Promise.all([
-      Product.findById(id)
-        .populate('category', 'name _id')
-        .lean(),
-      Category.find({})
-        .select('name _id')
-        .lean(),
-      Duration.find({})
-        .lean()
+      Product.findById(id).populate('category', 'name').lean(),
+      Category.find({}).lean(),
+      Duration.find({}).lean(),
     ]);
 
     if (!product) {
@@ -341,9 +426,14 @@ export async function getServerSideProps(context) {
       },
     };
   } catch (error) {
-    console.error('Error fetching product and categories:', error);
+    console.error('Error in getServerSideProps:', error);
     return {
-      notFound: true,
+      props: {
+        error: 'Failed to fetch product',
+        product: null,
+        categories: [],
+        durations: [],
+      },
     };
   }
 } 
