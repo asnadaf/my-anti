@@ -4,15 +4,20 @@ import Product from '../../models/Product';
 import LicenseKey from '../../models/LicenseKey';
 import Order from '../../models/Order';
 import { sendLicenseKey } from '../../lib/mailer';
+import crypto from 'crypto';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const auth = await requireAuth(req, res);
-  if (!auth) {
-    return res.status(401).json({ message: 'Authentication required' });
+  // Try to get auth, but don't require it
+  let auth = null;
+  try {
+    auth = await requireAuth(req, res);
+  } catch (error) {
+    // Auth is optional, continue without it
+    console.log('No authenticated user, proceeding as guest');
   }
 
   await dbConnect();
@@ -129,9 +134,13 @@ export default async function handler(req, res) {
       await product.save();
     }
 
-    // Create order
-    const order = await Order.create({
-      user: auth.userId,
+    // Generate a unique order ID with prefix
+    const randomId = crypto.randomBytes(4).toString('hex');
+    const orderId = `secure-key-ord-${randomId}-${Date.now()}`;
+
+    // Create order with or without user
+    const orderData = {
+      orderId, // Custom order ID for tracking
       items: orderItems,
       total,
       status: 'completed',
@@ -145,7 +154,14 @@ export default async function handler(req, res) {
         state: shippingInfo.state,
         zipCode: shippingInfo.zipCode
       }
-    });
+    };
+
+    // Add user if authenticated
+    if (auth && auth.userId) {
+      orderData.user = auth.userId;
+    }
+
+    const order = await Order.create(orderData);
 
     // Update license keys with order ID
     await LicenseKey.updateMany(
@@ -157,12 +173,14 @@ export default async function handler(req, res) {
     const deliveryResult = await sendLicenseKey({
       email: shippingInfo.email,
       licenseKey: licenseKeys.join('\n'),
-      productName: availableItems.map(item => item.name).join(', ')
+      productName: availableItems.map(item => item.name).join(', '),
+      orderId: orderId // Include the custom order ID in the email
     });
 
     return res.status(200).json({
       message: 'Order completed successfully',
       orderId: order._id,
+      customOrderId: orderId, // Return the custom order ID to the client
       deliveryResult,
       processedItems: availableItems,
       skippedItems: unavailableItems
