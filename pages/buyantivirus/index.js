@@ -1,12 +1,21 @@
 import Head from 'next/head';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { fetchTopProduct, fetchFilteredProducts } from '@lib/products';
 import FilterBar from '../../components/FilterBar';
 import ProductGrid from '../../components/products/ProductGrid';
 import SortBar from '../../components/products/SortBar';
 
-export default function BuyAntivirusPage({ topProduct, initialProducts, totalCount, usingFallback = false }) {
+export default function BuyAntivirusPage({ 
+  topProduct, 
+  initialProducts = [], 
+  totalCount = 0, 
+  totalPages = 1, 
+  currentPage = 1, 
+  pageSize = 12, 
+  usingFallback = false,
+  initialError = null
+}) {
   const router = useRouter();
   const isInitialMount = useRef(true);
   const [sortOption, setSortOption] = useState('relevance');
@@ -15,75 +24,30 @@ export default function BuyAntivirusPage({ topProduct, initialProducts, totalCou
   const [products, setProducts] = useState(initialProducts || []);
   const [productCount, setProductCount] = useState(totalCount || 0);
   const [debugMode, setDebugMode] = useState(false);
-  const [useFallback, setUseFallback] = useState(usingFallback);
+  const [useFallback, setUseFallback] = useState(false);
   const [currentQuery, setCurrentQuery] = useState({});
+  const [errorMessage, setErrorMessage] = useState(initialError || "");
+  const [paginationState, setPaginationState] = useState({
+    totalPages,
+    currentPage,
+    pageSize
+  });
 
-  // Sample fallback products in case API fails
-  const fallbackProducts = [
-    {
-      _id: 'fallback1',
-      name: 'Norton 360 Deluxe',
-      description: 'Complete protection for up to 5 devices with secure VPN.',
-      originalPrice: 89.99,
-      discountPrice: 39.99,
-      category: { name: 'Antivirus', _id: 'cat1' },
-      securityFeature: 'Total Protection',
-      brand: 'NORTON',
-      features: ['Real-time Protection', 'VPN', 'Password Manager'],
-      image: 'https://example.com/norton.jpg',
-      tag: 'Featured',
-      duration: { name: '1 Year', devices: 5, period: '1 Year', _id: 'dur1' },
-      slug: 'norton-360-deluxe'
-    },
-    {
-      _id: 'fallback2',
-      name: 'McAfee Total Protection',
-      description: 'Advanced security for all your devices.',
-      originalPrice: 99.99,
-      discountPrice: 49.99,
-      category: { name: 'Antivirus', _id: 'cat2' },
-      securityFeature: 'Total Protection',
-      brand: 'MCAFEE',
-      features: ['Virus Scanner', 'Firewall', 'Identity Protection'],
-      image: 'https://example.com/mcafee.jpg',
-      tag: 'Popular',
-      duration: { name: '1 Year', devices: 10, period: '1 Year', _id: 'dur2' },
-      slug: 'mcafee-total-protection'
-    },
-    {
-      _id: 'fallback3',
-      name: 'Kaspersky Internet Security',
-      description: 'Premium protection against cyber threats.',
-      originalPrice: 79.99,
-      discountPrice: 34.99,
-      category: { name: 'Antivirus', _id: 'cat3' },
-      securityFeature: 'Internet Security',
-      brand: 'KASPERSKY',
-      features: ['Safe Banking', 'Webcam Protection', 'VPN'],
-      image: 'https://example.com/kaspersky.jpg',
-      tag: 'Top',
-      duration: { name: '1 Year', devices: 3, period: '1 Year', _id: 'dur3' },
-      slug: 'kaspersky-internet-security'
-    },
-    {
-      _id: 'fallback4',
-      name: 'Bitdefender Total Security',
-      description: 'Complete protection for Windows, Mac, iOS and Android.',
-      originalPrice: 89.99,
-      discountPrice: 44.99,
-      category: { name: 'Antivirus', _id: 'cat4' },
-      securityFeature: 'Total Security',
-      brand: 'BITDEFENDER',
-      features: ['Multi-layer Ransomware Protection', 'Microphone Monitor', 'Anti-tracker'],
-      image: 'https://example.com/bitdefender.jpg',
-      tag: 'Best Seller',
-      duration: { name: '1 Year', devices: 5, period: '1 Year', _id: 'dur4' },
-      slug: 'bitdefender-total-security'
+  // Initialize products with server-side data
+  useEffect(() => {
+    if (initialProducts && initialProducts.length > 0) {
+      setProducts(initialProducts);
+      setProductCount(totalCount);
+      setPaginationState({
+        totalPages,
+        currentPage,
+        pageSize
+      });
     }
-  ];
+  }, [initialProducts, totalCount, totalPages, currentPage, pageSize]);
 
   // Check if query params have changed significantly
-  const haveQueriesChanged = (oldQuery, newQuery) => {
+  const haveQueriesChanged = useCallback((oldQuery, newQuery) => {
     const relevantParams = ['security', 'brand', 'duration', 'minPrice', 'maxPrice', 'page'];
     
     for (const param of relevantParams) {
@@ -93,7 +57,159 @@ export default function BuyAntivirusPage({ topProduct, initialProducts, totalCou
     }
     
     return false;
-  };
+  }, []);
+
+  // Handle pagination change
+  const handlePageChange = useCallback((newPage) => {
+    if (newPage < 1 || newPage > paginationState.totalPages) return;
+    
+    // Update URL to change page
+    const queryParams = { ...router.query, page: newPage };
+    router.push({
+      pathname: router.pathname,
+      query: queryParams,
+    }, undefined, { shallow: true });
+  }, [router, paginationState.totalPages]);
+
+  // Get page numbers to display
+  const getPageNumbers = useCallback(() => {
+    const pages = [];
+    const maxPageButtons = 5; // Max number of page buttons to show
+    const { totalPages, currentPage } = paginationState;
+    
+    if (totalPages <= maxPageButtons) {
+      // Show all pages if there are fewer than maxPageButtons
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page, last page, current page, and 1 page before/after current
+      pages.push(1); // First page
+      
+      const startPage = Math.max(2, currentPage - 1);
+      const endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      if (startPage > 2) {
+        pages.push('...'); // Ellipsis if there's a gap
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      
+      if (endPage < totalPages - 1) {
+        pages.push('...'); // Ellipsis if there's a gap
+      }
+      
+      pages.push(totalPages); // Last page
+    }
+    
+    return pages;
+  }, [paginationState]);
+
+  // Fetch products function
+  const fetchProducts = useCallback(async (params, sortOpt) => {
+    setIsLoading(true);
+    setErrorMessage(""); // Clear any existing errors
+    
+    try {
+      // Extract filter parameters from URL
+      const { security, brand, duration, minPrice, maxPrice, page = '1' } = params;
+      
+      // Update current page state
+      const pageNum = parseInt(page, 10) || 1;
+      setPaginationState(prev => ({
+        ...prev,
+        currentPage: pageNum
+      }));
+      
+      // Check if we're in the browser
+      const isClient = typeof window !== 'undefined';
+      
+      let result;
+      if (isClient) {
+        // In browser, use the API route instead of direct DB access
+        const queryParams = new URLSearchParams();
+        if (security) queryParams.append('security', security);
+        if (brand) queryParams.append('brand', brand);
+        if (duration) queryParams.append('duration', duration);
+        if (minPrice) queryParams.append('minPrice', minPrice);
+        if (maxPrice) queryParams.append('maxPrice', maxPrice);
+        if (sortOpt) queryParams.append('sortBy', sortOpt);
+        queryParams.append('page', pageNum);
+        
+        // Call the API endpoint
+        const response = await fetch(`/api/products?${queryParams.toString()}`);
+        result = await response.json();
+      } else {
+        // On server, use direct DB access
+        result = await fetchFilteredProducts({
+          security: security || undefined,
+          brand: brand || undefined,
+          duration: duration || undefined,
+          minPrice: minPrice || undefined,
+          maxPrice: maxPrice || undefined,
+          sortBy: sortOpt,
+          page: pageNum,
+        });
+      }
+      
+      // Check if the result contains an error
+      if (result.error) {
+        console.error('API returned error:', result.error);
+        setErrorMessage(`Database error: ${result.error}`);
+        setProducts([]);
+        setUseFallback(true);
+        return;
+      }
+      
+      if (result && typeof result === 'object') {
+        const { products: filteredProducts, totalCount, totalPages: pages, pageSize: limit } = result;
+        if (Array.isArray(filteredProducts) && filteredProducts.length > 0) {
+          setProducts(filteredProducts);
+          setUseFallback(false);
+          setPaginationState({
+            totalPages: pages || Math.ceil(totalCount / (limit || 12)),
+            currentPage: pageNum,
+            pageSize: limit || 12
+          });
+        } else {
+          setProducts([]);
+          setUseFallback(true);
+          setPaginationState({
+            totalPages: 1,
+            currentPage: 1,
+            pageSize: 12
+          });
+        }
+        if (typeof totalCount === 'number') {
+          setProductCount(totalCount > 0 ? totalCount : 0);
+        }
+      } else {
+        setProducts([]);
+        setProductCount(0);
+        setUseFallback(true);
+        setPaginationState({
+          totalPages: 1,
+          currentPage: 1,
+          pageSize: 12
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setErrorMessage(`Failed to fetch products: ${error.message}`);
+      setProducts([]);
+      setProductCount(0);
+      setUseFallback(true);
+      setPaginationState({
+        totalPages: 1,
+        currentPage: 1,
+        pageSize: 12
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   // When router query changes, fetch products if needed
   useEffect(() => {
@@ -112,97 +228,28 @@ export default function BuyAntivirusPage({ topProduct, initialProducts, totalCou
     }
     
     setCurrentQuery(router.query);
+    fetchProducts(router.query, sortOption);
     
-    const fetchProducts = async () => {
-      setIsLoading(true);
-      try {
-        // Extract filter parameters from URL
-        const { security, brand, duration, minPrice, maxPrice, page = '1' } = router.query;
-        
-        // Call API to get filtered products
-        const result = await fetchFilteredProducts({
-          security: security || undefined,
-          brand: brand || undefined,
-          duration: duration || undefined,
-          minPrice: minPrice || undefined,
-          maxPrice: maxPrice || undefined,
-          sortBy: sortOption,
-          page: parseInt(page, 10) || 1,
-        });
-        
-        console.log('Client fetch result:', result);
-        
-        if (result && typeof result === 'object') {
-          const { products: filteredProducts, totalCount } = result;
-          if (Array.isArray(filteredProducts) && filteredProducts.length > 0) {
-            setProducts(filteredProducts);
-            setUseFallback(false);
-            console.log('Setting products:', filteredProducts.length);
-          } else {
-            console.warn('No products returned from API, using fallback data');
-            setProducts(fallbackProducts);
-            setUseFallback(true);
-          }
-          if (typeof totalCount === 'number') {
-            setProductCount(totalCount > 0 ? totalCount : fallbackProducts.length);
-          }
-        } else {
-          console.warn('Invalid API response, using fallback data');
-          setProducts(fallbackProducts);
-          setProductCount(fallbackProducts.length);
-          setUseFallback(true);
-        }
-      } catch (error) {
-        console.error('Error fetching filtered products:', error);
-        setProducts(fallbackProducts);
-        setProductCount(fallbackProducts.length);
-        setUseFallback(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchProducts();
-  }, [router.query, router.isReady]);
+  }, [router.query, router.isReady, haveQueriesChanged, fetchProducts, sortOption, currentQuery]);
 
   // Handle sort change - this immediately changes products 
-  const handleSortChange = (option) => {
+  const handleSortChange = useCallback((option) => {
     if (option === sortOption) return;
     
     setSortOption(option);
+    fetchProducts(router.query, option);
     
-    // Fetch with new sort option but keep other filters
-    const fetchWithNewSort = async () => {
-      setIsLoading(true);
-      try {
-        const { security, brand, duration, minPrice, maxPrice, page = '1' } = router.query;
-        
-        const result = await fetchFilteredProducts({
-          security: security || undefined,
-          brand: brand || undefined,
-          duration: duration || undefined,
-          minPrice: minPrice || undefined,
-          maxPrice: maxPrice || undefined,
-          sortBy: option, // Use the new sort option
-          page: parseInt(page, 10) || 1,
-        });
-        
-        if (result && typeof result === 'object') {
-          const { products: filteredProducts } = result;
-          if (Array.isArray(filteredProducts) && filteredProducts.length > 0) {
-            setProducts(filteredProducts);
-            setUseFallback(false);
-          }
-        }
-      } catch (error) {
-        console.error('Error sorting products:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchWithNewSort();
-  };
+  }, [fetchProducts, router.query, sortOption]);
+
+  // Toggle debug mode
+  const toggleDebugMode = useCallback(() => {
+    setDebugMode(prev => !prev);
+  }, []);
+
+  // Toggle mobile filter visibility
+  const toggleMobileFilter = useCallback(() => {
+    setIsMobileFilterOpen(prev => !prev);
+  }, []);
 
   // Structured data for better SEO
   const structuredData = {
@@ -291,7 +338,7 @@ export default function BuyAntivirusPage({ topProduct, initialProducts, totalCou
           {/* Debug Mode Toggle */}
           <div className="mb-2 flex justify-end">
             <button 
-              onClick={() => setDebugMode(!debugMode)} 
+              onClick={toggleDebugMode} 
               className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded"
             >
               {debugMode ? 'Hide Debug' : 'Show Debug'}
@@ -307,9 +354,26 @@ export default function BuyAntivirusPage({ topProduct, initialProducts, totalCou
               <p>Loading: {isLoading ? 'True' : 'False'}</p>
               <p>Sort Option: {sortOption}</p>
               <p>Using Fallback Data: {useFallback ? 'Yes' : 'No'}</p>
+              <p>Current Page: {paginationState.currentPage} of {paginationState.totalPages}</p>
+              <p>Page Size: {paginationState.pageSize}</p>
               <p>Query Params: {JSON.stringify(router.query)}</p>
               <h4 className="font-bold mt-2 mb-1">First Product (if any):</h4>
               <pre>{products && products.length > 0 ? JSON.stringify(products[0], null, 2) : 'No products'}</pre>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
+                </svg>
+                <span>{errorMessage}</span>
+              </div>
+              <div className="mt-2 text-xs">
+                Using fallback product data. Please try again later or contact support if the issue persists.
+              </div>
             </div>
           )}
 
@@ -324,7 +388,7 @@ export default function BuyAntivirusPage({ topProduct, initialProducts, totalCou
           {/* Mobile Filter Toggle Button */}
           <div className="lg:hidden mb-2">
             <button
-              onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+              onClick={toggleMobileFilter}
               className="w-full flex items-center justify-center bg-white p-2 rounded-lg shadow-sm text-gray-700 text-xs"
             >
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -357,30 +421,72 @@ export default function BuyAntivirusPage({ topProduct, initialProducts, totalCou
                   </div>
                 )}
                 <ProductGrid 
+                  key={`${sortOption}-${paginationState.currentPage}`}
                   products={products} 
                   isLoading={false} // We're handling loading state differently now
                 />
               </div>
               
-              {/* Pagination - More compact */}
-              <div className="mt-4 md:mt-6 flex justify-center">
-                <nav className="inline-flex rounded-md shadow text-xs">
-                  <a href="#" className="py-1 px-2 md:py-1.5 md:px-3 bg-white border border-gray-300 rounded-l-md text-gray-700 hover:bg-gray-50">
-                    Prev
-                  </a>
-                  <a href="#" className="py-1 px-2 md:py-1.5 md:px-3 bg-blue-600 border border-blue-600 text-white hover:bg-blue-700">
-                    1
-                  </a>
-                  <a href="#" className="py-1 px-2 md:py-1.5 md:px-3 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">
-                    2
-                  </a>
-                  <a href="#" className="py-1 px-2 md:py-1.5 md:px-3 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">
-                    3
-                  </a>
-                  <a href="#" className="py-1 px-2 md:py-1.5 md:px-3 bg-white border border-gray-300 rounded-r-md text-gray-700 hover:bg-gray-50">
-                    Next
-                  </a>
-                </nav>
+              {/* Pagination Section */}
+              <div className="mt-4 md:mt-6 flex flex-col items-center">
+                {/* Product count info */}
+                <div className="text-sm text-gray-600 mb-3">
+                  Showing {products.length} of {productCount} products 
+                  {paginationState.currentPage > 1 ? ` - Page ${paginationState.currentPage} of ${paginationState.totalPages}` : ''}
+                </div>
+                
+                {/* Pagination controls */}
+                {paginationState.totalPages > 1 && (
+                  <nav className="inline-flex rounded-md shadow text-xs">
+                    <button 
+                      onClick={() => handlePageChange(paginationState.currentPage - 1)}
+                      disabled={paginationState.currentPage === 1}
+                      className={`py-1 px-2 md:py-1.5 md:px-3 border rounded-l-md ${
+                        paginationState.currentPage === 1 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' 
+                          : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                      }`}
+                    >
+                      Prev
+                    </button>
+                    
+                    {getPageNumbers().map((page, index) => (
+                      page === '...' 
+                        ? (
+                          <span 
+                            key={`ellipsis-${index}`} 
+                            className="py-1 px-2 md:py-1.5 md:px-3 bg-white border border-gray-300 text-gray-400"
+                          >
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={`py-1 px-2 md:py-1.5 md:px-3 border ${
+                              paginationState.currentPage === page
+                                ? 'bg-blue-600 border-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        )
+                    ))}
+                    
+                    <button 
+                      onClick={() => handlePageChange(paginationState.currentPage + 1)}
+                      disabled={paginationState.currentPage === paginationState.totalPages}
+                      className={`py-1 px-2 md:py-1.5 md:px-3 border rounded-r-md ${
+                        paginationState.currentPage === paginationState.totalPages 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' 
+                          : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                      }`}
+                    >
+                      Next
+                    </button>
+                  </nav>
+                )}
               </div>
             </div>
           </div>
@@ -392,137 +498,78 @@ export default function BuyAntivirusPage({ topProduct, initialProducts, totalCou
 
 // Server-side rendering with getServerSideProps
 export async function getServerSideProps(context) {
-  const { query } = context;
-  const { 
-    security, 
-    brand, 
-    duration, 
-    minPrice, 
-    maxPrice, 
-    page = '1' 
-  } = query;
-
-  // Fallback products for SSR
-  const fallbackProducts = [
-    {
-      _id: 'fallback1',
-      name: 'Norton 360 Deluxe',
-      description: 'Complete protection for up to 5 devices with secure VPN.',
-      originalPrice: 89.99,
-      discountPrice: 39.99,
-      category: { name: 'Antivirus', _id: 'cat1' },
-      securityFeature: 'Total Protection',
-      brand: 'NORTON',
-      features: ['Real-time Protection', 'VPN', 'Password Manager'],
-      image: 'https://example.com/norton.jpg',
-      tag: 'Featured',
-      duration: { name: '1 Year', devices: 5, period: '1 Year', _id: 'dur1' },
-      slug: 'norton-360-deluxe'
-    },
-    {
-      _id: 'fallback2',
-      name: 'McAfee Total Protection',
-      description: 'Advanced security for all your devices.',
-      originalPrice: 99.99,
-      discountPrice: 49.99,
-      category: { name: 'Antivirus', _id: 'cat2' },
-      securityFeature: 'Total Protection',
-      brand: 'MCAFEE',
-      features: ['Virus Scanner', 'Firewall', 'Identity Protection'],
-      image: 'https://example.com/mcafee.jpg',
-      tag: 'Popular',
-      duration: { name: '1 Year', devices: 10, period: '1 Year', _id: 'dur2' },
-      slug: 'mcafee-total-protection'
-    },
-    {
-      _id: 'fallback3',
-      name: 'Kaspersky Internet Security',
-      description: 'Premium protection against cyber threats.',
-      originalPrice: 79.99,
-      discountPrice: 34.99,
-      category: { name: 'Antivirus', _id: 'cat3' },
-      securityFeature: 'Internet Security',
-      brand: 'KASPERSKY',
-      features: ['Safe Banking', 'Webcam Protection', 'VPN'],
-      image: 'https://example.com/kaspersky.jpg',
-      tag: 'Top',
-      duration: { name: '1 Year', devices: 3, period: '1 Year', _id: 'dur3' },
-      slug: 'kaspersky-internet-security'
-    },
-    {
-      _id: 'fallback4',
-      name: 'Bitdefender Total Security',
-      description: 'Complete protection for Windows, Mac, iOS and Android.',
-      originalPrice: 89.99,
-      discountPrice: 44.99,
-      category: { name: 'Antivirus', _id: 'cat4' },
-      securityFeature: 'Total Security',
-      brand: 'BITDEFENDER',
-      features: ['Multi-layer Ransomware Protection', 'Microphone Monitor', 'Anti-tracker'],
-      image: 'https://example.com/bitdefender.jpg',
-      tag: 'Best Seller',
-      duration: { name: '1 Year', devices: 5, period: '1 Year', _id: 'dur4' },
-      slug: 'bitdefender-total-security'
-    }
-  ];
-
   try {
-    console.log('SSR: Starting to fetch products with query params:', query);
-
-    // Always fetch all products on initial load if no filters are specified
-    let apiFilters = {
-      sortBy: 'relevance',
-      page: parseInt(page, 10) || 1,
-    };
-
-    // Only add filter parameters that are actually present
-    if (security) apiFilters.security = security;
-    if (brand) apiFilters.brand = brand;
-    if (duration) apiFilters.duration = duration;
-    if (minPrice) apiFilters.minPrice = minPrice;
-    if (maxPrice) apiFilters.maxPrice = maxPrice;
-
-    // Get initial data based on any filter params in the URL
-    const topProductPromise = fetchTopProduct();
-    const productsPromise = fetchFilteredProducts(apiFilters);
-
-    const [topProduct, productsResult] = await Promise.all([topProductPromise, productsPromise]);
+    const { query } = context;
     
-    // Check if we got valid products from the API
-    let products = [];
-    let totalCount = 0;
-    let usingFallback = false;
+    const page = query.page ? parseInt(query.page) : 1;
+    const pageSize = 12;
+    const sort = query.sort || 'relevance';
     
-    if (productsResult && productsResult.products && Array.isArray(productsResult.products) && productsResult.products.length > 0) {
-      // Use API data
-      console.log('SSR: Using API data, found', productsResult.products.length, 'products');
-      products = productsResult.products;
-      totalCount = typeof productsResult.totalCount === 'number' ? productsResult.totalCount : productsResult.products.length;
-    } else {
-      // Use fallback data
-      console.log('SSR: No products from API, using fallback data');
-      products = fallbackProducts;
-      totalCount = fallbackProducts.length;
-      usingFallback = true;
+    // Try to fetch data from API
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.append('page', page);
+      queryParams.append('pageSize', pageSize);
+      queryParams.append('sort', sort);
+      
+      if (query.category) queryParams.append('category', query.category);
+      if (query.priceRange) queryParams.append('priceRange', query.priceRange);
+      if (query.brand) queryParams.append('brand', query.brand);
+      if (query.search) queryParams.append('search', query.search);
+      
+      // Fetch data from API
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const host = context.req.headers.host;
+      const url = `${protocol}://${host}/api/products?${queryParams.toString()}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data.error) {
+        console.error('API returned error:', data.error);
+        throw new Error(data.error);
+      }
+      
+      return {
+        props: {
+          initialProducts: data.products || [],
+          topProduct: data.topProduct || null,
+          totalCount: data.totalCount || 0,
+          totalPages: data.totalPages || 1,
+          currentPage: page || 1,
+          pageSize,
+          usingFallback: false,
+          initialError: null
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching data:', error.message);
+      return { 
+        props: {
+          initialProducts: [],
+          topProduct: null,
+          totalCount: 0,
+          totalPages: 1,
+          currentPage: 1,
+          pageSize,
+          usingFallback: false,
+          initialError: `Failed to fetch products: ${error.message}`
+        }
+      };
     }
-    
-    return {
-      props: {
-        topProduct: topProduct || null,
-        initialProducts: products,
-        totalCount,
-        usingFallback
-      },
-    };
   } catch (error) {
-    console.error('Error in getServerSideProps:', error);
-    return {
+    console.error('Server error:', error);
+    return { 
       props: {
+        initialProducts: [],
         topProduct: null,
-        initialProducts: fallbackProducts,
-        totalCount: fallbackProducts.length,
-        usingFallback: true
-      },
+        totalCount: 0,
+        totalPages: 1,
+        currentPage: 1,
+        pageSize: 12,
+        usingFallback: false,
+        initialError: `Server error: ${error.message}`
+      }
     };
   }
 }

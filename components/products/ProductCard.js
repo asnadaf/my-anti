@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -94,4 +94,5 @@ const ProductCard = ({ product }) => {
   );
 };
 
-export default ProductCard; 
+// Using memo to prevent unnecessary re-renders
+export default memo(ProductCard); 

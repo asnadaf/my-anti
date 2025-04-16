@@ -1,32 +1,40 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 const SortBar = ({ totalProducts, sortOption, onSortChange }) => {
+  const sortOptions = [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'price-low', label: 'Price: Low to High' },
+    { value: 'price-high', label: 'Price: High to Low' },
+    { value: 'name-asc', label: 'Name: A to Z' },
+    { value: 'name-desc', label: 'Name: Z to A' },
+    { value: 'newest', label: 'Newest' },
+  ];
+  
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3 rounded-lg shadow-sm mb-4">
-      <div className="mb-2 sm:mb-0 text-sm">
-        <span className="text-gray-600">Showing</span>
-        <span className="font-semibold mx-1">{totalProducts}</span>
-        <span className="text-gray-600">results</span>
+    <div className="bg-white p-3 rounded-lg shadow-sm flex flex-col xs:flex-row justify-between items-start xs:items-center mb-3 text-sm">
+      <div className="mb-2 xs:mb-0">
+        <span className="text-gray-600">
+          {totalProducts} {totalProducts === 1 ? 'product' : 'products'} found
+        </span>
       </div>
       
       <div className="flex items-center">
-        <label htmlFor="sort-by" className="text-gray-600 text-sm mr-2">Sort by:</label>
+        <label htmlFor="sort-select" className="mr-2 text-gray-600">Sort by:</label>
         <select
-          id="sort-by"
+          id="sort-select"
           value={sortOption}
           onChange={(e) => onSortChange(e.target.value)}
-          className="border border-gray-300 rounded p-1 text-sm bg-white text-gray-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          className="border border-gray-300 rounded px-2 py-1 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="relevance">Relevance</option>
-          <option value="price-low">Price (Low to High)</option>
-          <option value="price-high">Price (High to Low)</option>
-          <option value="name-asc">Name (A-Z)</option>
-          <option value="name-desc">Name (Z-A)</option>
-          <option value="newest">Newest First</option>
+          {sortOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
     </div>
   );
 };
 
-export default SortBar; 
+export default memo(SortBar); 

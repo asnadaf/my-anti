@@ -9,14 +9,15 @@ import { Star, Check } from 'lucide-react';
 
 // Define the Product interface
 interface Product {
-  id: number | string;
+  _id?: string;
+  id?: string | number;
   name: string;
   description: string;
   discountPrice: number;
   originalPrice: number;
   discount: number;
   devices: number;
-  duration: string;
+  duration: string | { name: string; devices: number; period: string };
   features: string[];
   image: string;
   popular: boolean;
@@ -27,6 +28,7 @@ interface Product {
   reviews?: number;
   inStock?: boolean;
   sku?: string;
+  tag?: string;
 }
 
 interface ProductCardProps {
@@ -34,14 +36,20 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  // Safely extract duration info
+  const deviceCount = typeof product.duration === 'object' 
+    ? product.duration?.devices || 1 
+    : 1;
+  const durationPeriod = typeof product.duration === 'object' 
+    ? product.duration?.period || '1 Year' 
+    : product.duration || '1 Year';
+
   const {
     name,
     description,
     discountPrice,
     originalPrice,
     discount,
-    devices,
-    duration,
     features,
     image,
     popular,
@@ -49,7 +57,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     brand,
     rating,
     reviews,
-    inStock
+    inStock,
+    tag
   } = product;
 
   // Generate product URL
@@ -100,49 +109,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </Badge>
           )}
         </div>
-        
-        <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
-          <div className="flex items-center">
-            <span className="mr-1">Devices:</span>
-            <span className="font-medium">{devices}</span>
-          </div>
-          <div className="flex items-center">
-            <span className="mr-1">Duration:</span>
-            <span className="font-medium">{duration}</span>
-          </div>
+
+        <div className="flex items-center text-sm text-gray-500 mb-4">
+          <span>{deviceCount} {deviceCount === 1 ? 'Device' : 'Devices'}</span>
+          <span className="mx-2">•</span>
+          <span>{durationPeriod}</span>
         </div>
-        
-        {features && features.length > 0 && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Key Features:</h4>
-            <ul className="space-y-1">
-              {features.slice(0, 3).map((feature, index) => (
-                <li key={index} className="flex items-start text-sm text-gray-600">
-                  <Check className="h-4 w-4 text-green-500 mr-1 flex-shrink-0 mt-0.5" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-              {features.length > 3 && (
-                <li className="text-sm text-blue-600">
-                  +{features.length - 3} more features
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
-        
-        <div className="flex justify-between items-center">
-          <Link href={productUrl}>
-            <Button variant="outline" className="w-full">
-              View Details
-            </Button>
-          </Link>
-          <Link href={`/buyantivirus/checkout?product=${slug || name.toLowerCase().replace(/\s+/g, '-')}`}>
-            <Button className="ml-2">
-              Buy Now
-            </Button>
-          </Link>
+
+        <div className="space-y-2 mb-4">
+          {features.slice(0, 3).map((feature, index) => (
+            <div key={index} className="flex items-center text-sm text-gray-600">
+              <Check className="h-4 w-4 text-green-500 mr-2" />
+              <span>{feature}</span>
+            </div>
+          ))}
         </div>
+
+        <Link href={productUrl} passHref>
+          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+            View Details
+          </Button>
+        </Link>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ProductCard from './ProductCard';
 
 const ProductGrid = ({ products, isLoading = false }) => {
@@ -8,12 +8,6 @@ const ProductGrid = ({ products, isLoading = false }) => {
     : null;
     
   const displayProducts = isLoading ? placeholderProducts : products;
-  
-  console.log('ProductGrid received:', { 
-    productsLength: products?.length || 0, 
-    isLoading, 
-    displayProductsLength: displayProducts?.length || 0 
-  });
   
   if (!isLoading && (!displayProducts || displayProducts.length === 0)) {
     return (
@@ -26,13 +20,22 @@ const ProductGrid = ({ products, isLoading = false }) => {
   
   return (
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-      {displayProducts.map((product, index) => (
-        <div key={product?._id || `placeholder-${index}`} className="h-full">
-          <ProductCard product={product} />
-        </div>
-      ))}
+      {displayProducts.map((product, index) => {
+        // Ensure product is properly formatted
+        const formattedProduct = product ? {
+          ...product,
+          id: product._id || product.id,
+          _id: undefined // Remove _id to prevent React errors
+        } : null;
+        
+        return (
+          <div key={formattedProduct?.id || `placeholder-${index}`} className="h-full">
+            <ProductCard product={formattedProduct} />
+          </div>
+        );
+      })}
     </div>
   );
 };
 
-export default ProductGrid; 
+export default memo(ProductGrid); 

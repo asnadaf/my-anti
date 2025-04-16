@@ -23,12 +23,12 @@ const FilterBar = () => {
   
   // Duration options - these should come from API but hardcoded for now
   const durationOptions = [
-    { id: '1pc-1year', label: '1PC / 1Year' },
-    { id: '1pc-2year', label: '1PC / 2Year' },
-    { id: '1pc-3year', label: '1PC / 3Year' },
-    { id: '3pc-1year', label: '3PC / 1Year' },
-    { id: '3pc-2year', label: '3PC / 2Year' },
-    { id: '5pc-1year', label: '5PC / 1Year' },
+    { id: '1pc-1year', label: '1 PC / 1 Year' },
+    { id: '1pc-2year', label: '1 PC / 2 Years' },
+    { id: '1pc-3year', label: '1 PC / 3 Years' },
+    { id: '3pc-1year', label: '3 PCs / 1 Year' },
+    { id: '3pc-2year', label: '3 PCs / 2 Years' },
+    { id: '5pc-1year', label: '5 PCs / 1 Year' },
   ];
 
   // Security feature options - from Product model
@@ -180,24 +180,35 @@ const FilterBar = () => {
   };
 
   return (
-    <div className="w-full md:w-64 border-r border-gray-200 bg-white p-4 shadow-sm rounded-lg">
+    <div className="w-full md:w-64 bg-white p-4 shadow-sm rounded-lg">
       <div className="flex justify-between items-center border-b pb-2 mb-4">
         <h2 className="text-xl font-bold">Filters</h2>
-        <button 
-          onClick={resetFilters}
-          className="text-xs text-blue-600 hover:text-blue-800"
-        >
-          Reset all
-        </button>
+        {Object.values(filters).some(val => 
+          Array.isArray(val) ? val.length > 0 : val !== ''
+        ) && (
+          <button 
+            onClick={resetFilters}
+            className="text-xs text-blue-600 hover:text-blue-800"
+          >
+            Reset all
+          </button>
+        )}
       </div>
       
       {/* Security Type Filter */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={() => toggleSection('security')}>
-          <h3 className="font-semibold text-lg">Security</h3>
-          <svg className={`w-5 h-5 transition-transform ${expandedSections.security ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          <h3 className="font-semibold text-lg">Security Type</h3>
+          <div className="flex items-center">
+            {filters.security.length > 0 && (
+              <span className="text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-0.5 mr-2">
+                {filters.security.length}
+              </span>
+            )}
+            <svg className={`w-5 h-5 transition-transform ${expandedSections.security ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
         {expandedSections.security && (
           <div className="space-y-2 pl-2">
@@ -206,11 +217,11 @@ const FilterBar = () => {
                 <input 
                   type="checkbox" 
                   id={`security-${option.id}`}
-                  className="mr-2" 
+                  className="mr-2 h-4 w-4 text-blue-600 rounded" 
                   checked={filters.security.includes(option.id)}
                   onChange={() => handleCheckboxChange('security', option.id)}
                 />
-                <label htmlFor={`security-${option.id}`} className="text-gray-700 cursor-pointer">{option.label}</label>
+                <label htmlFor={`security-${option.id}`} className="text-gray-700 text-sm cursor-pointer">{option.label}</label>
               </div>
             ))}
           </div>
@@ -221,9 +232,16 @@ const FilterBar = () => {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={() => toggleSection('brand')}>
           <h3 className="font-semibold text-lg">Brand</h3>
-          <svg className={`w-5 h-5 transition-transform ${expandedSections.brand ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          <div className="flex items-center">
+            {filters.brand.length > 0 && (
+              <span className="text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-0.5 mr-2">
+                {filters.brand.length}
+              </span>
+            )}
+            <svg className={`w-5 h-5 transition-transform ${expandedSections.brand ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
         {expandedSections.brand && (
           <div className="space-y-2 pl-2">
@@ -232,11 +250,11 @@ const FilterBar = () => {
                 <input 
                   type="checkbox" 
                   id={`brand-${option.id}`}
-                  className="mr-2" 
+                  className="mr-2 h-4 w-4 text-blue-600 rounded" 
                   checked={filters.brand.includes(option.id)}
                   onChange={() => handleCheckboxChange('brand', option.id)}
                 />
-                <label htmlFor={`brand-${option.id}`} className="text-gray-700 cursor-pointer">{option.label}</label>
+                <label htmlFor={`brand-${option.id}`} className="text-gray-700 text-sm cursor-pointer">{option.label}</label>
               </div>
             ))}
           </div>
@@ -247,9 +265,16 @@ const FilterBar = () => {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={() => toggleSection('duration')}>
           <h3 className="font-semibold text-lg">License Term</h3>
-          <svg className={`w-5 h-5 transition-transform ${expandedSections.duration ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          <div className="flex items-center">
+            {filters.duration.length > 0 && (
+              <span className="text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-0.5 mr-2">
+                {filters.duration.length}
+              </span>
+            )}
+            <svg className={`w-5 h-5 transition-transform ${expandedSections.duration ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
         {expandedSections.duration && (
           <div className="space-y-2 pl-2">
@@ -258,11 +283,11 @@ const FilterBar = () => {
                 <input 
                   type="checkbox" 
                   id={`duration-${option.id}`}
-                  className="mr-2" 
+                  className="mr-2 h-4 w-4 text-blue-600 rounded" 
                   checked={filters.duration.includes(option.id)}
                   onChange={() => handleCheckboxChange('duration', option.id)}
                 />
-                <label htmlFor={`duration-${option.id}`} className="text-gray-700 cursor-pointer">{option.label}</label>
+                <label htmlFor={`duration-${option.id}`} className="text-gray-700 text-sm cursor-pointer">{option.label}</label>
               </div>
             ))}
           </div>
@@ -273,9 +298,16 @@ const FilterBar = () => {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={() => toggleSection('price')}>
           <h3 className="font-semibold text-lg">Price Range</h3>
-          <svg className={`w-5 h-5 transition-transform ${expandedSections.price ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          <div className="flex items-center">
+            {(filters.minPrice || filters.maxPrice) && (
+              <span className="text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-0.5 mr-2">
+                Active
+              </span>
+            )}
+            <svg className={`w-5 h-5 transition-transform ${expandedSections.price ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
         {expandedSections.price && (
           <div className="pl-2">
@@ -288,7 +320,7 @@ const FilterBar = () => {
                   name="minPrice"
                   value={filters.minPrice}
                   onChange={handlePriceChange}
-                  className="w-full p-1 border border-gray-300 rounded" 
+                  className="w-full p-1 border border-gray-300 rounded text-sm" 
                   placeholder="0" 
                 />
               </div>
@@ -300,7 +332,7 @@ const FilterBar = () => {
                   name="maxPrice"
                   value={filters.maxPrice}
                   onChange={handlePriceChange}
-                  className="w-full p-1 border border-gray-300 rounded" 
+                  className="w-full p-1 border border-gray-300 rounded text-sm" 
                   placeholder="500" 
                 />
               </div>

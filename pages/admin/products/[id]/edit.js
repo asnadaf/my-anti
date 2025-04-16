@@ -324,7 +324,7 @@ export default function EditProductPage({ product: initialProduct, categories, d
                   <option value="">Select a duration</option>
                   {durations?.map((duration) => (
                     <option key={duration._id} value={duration._id}>
-                      {duration.devices} {duration.devices > 1 ? 'Devices' : 'Device'} / {duration.period}
+                      {duration.deviceCount} {duration.deviceType}{duration.deviceCount > 1 ? 's' : ''} / {duration.duration} {duration.durationUnit}{duration.duration > 1 ? 's' : ''}
                     </option>
                   ))}
                 </select>
