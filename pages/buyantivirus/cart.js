@@ -65,9 +65,8 @@ const CheckoutForm = ({ total, onCheckout, isProcessing }) => {
     city: '',
     state: '',
     zipCode: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
+    phone: '',
+    paymentMethod: 'ccavenue', // Default to CCAvenue
   });
 
   const handleChange = (e) => {
@@ -108,6 +107,20 @@ const CheckoutForm = ({ total, onCheckout, isProcessing }) => {
               id="email"
               name="email"
               value={formData.email}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
               onChange={handleChange}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -175,59 +188,35 @@ const CheckoutForm = ({ total, onCheckout, isProcessing }) => {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Information</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Method</h3>
         <div className="space-y-4">
-          <div>
-            <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700">
-              Card Number
+          <div className="flex items-center">
+            <input
+              type="radio"
+              id="ccavenue"
+              name="paymentMethod"
+              value="ccavenue"
+              checked={formData.paymentMethod === 'ccavenue'}
+              onChange={handleChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            />
+            <label htmlFor="ccavenue" className="ml-3 block text-sm font-medium text-gray-700">
+              CCAvenue (Credit/Debit Card, UPI, Net Banking)
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <CreditCard className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                id="cardNumber"
-                name="cardNumber"
-                value={formData.cardNumber}
-                onChange={handleChange}
-                required
-                placeholder="1234 5678 9012 3456"
-                className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700">
-                Expiry Date
-              </label>
-              <input
-                type="text"
-                id="expiryDate"
-                name="expiryDate"
-                value={formData.expiryDate}
-                onChange={handleChange}
-                required
-                placeholder="MM/YY"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="cvv" className="block text-sm font-medium text-gray-700">
-                CVV
-              </label>
-              <input
-                type="text"
-                id="cvv"
-                name="cvv"
-                value={formData.cvv}
-                onChange={handleChange}
-                required
-                placeholder="123"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
+          <div className="flex items-center">
+            <input
+              type="radio"
+              id="cod"
+              name="paymentMethod"
+              value="cod"
+              checked={formData.paymentMethod === 'cod'}
+              onChange={handleChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            />
+            <label htmlFor="cod" className="ml-3 block text-sm font-medium text-gray-700">
+              Cash on Delivery
+            </label>
           </div>
         </div>
       </div>
@@ -251,7 +240,7 @@ const CheckoutForm = ({ total, onCheckout, isProcessing }) => {
           className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           <Lock className="h-4 w-4 mr-2" />
-          Complete Purchase
+          {isProcessing ? 'Processing...' : 'Proceed to Payment'}
         </button>
       </div>
     </form>
@@ -280,13 +269,10 @@ export default function CartDashboard() {
           address: formData.address,
           city: formData.city,
           state: formData.state,
-          zipCode: formData.zipCode
+          zipCode: formData.zipCode,
+          phone: formData.phone
         },
-        paymentInfo: {
-          cardNumber: formData.cardNumber,
-          expiryDate: formData.expiryDate,
-          cvv: formData.cvv
-        },
+        paymentMethod: formData.paymentMethod,
         confirmOrder: false // This is just a check
       };
       
@@ -345,13 +331,10 @@ export default function CartDashboard() {
           address: formData.address,
           city: formData.city,
           state: formData.state,
-          zipCode: formData.zipCode
+          zipCode: formData.zipCode,
+          phone: formData.phone
         },
-        paymentInfo: {
-          cardNumber: formData.cardNumber,
-          expiryDate: formData.expiryDate,
-          cvv: formData.cvv
-        },
+        paymentMethod: formData.paymentMethod,
         confirmOrder: true // This is the actual order
       };
       
@@ -371,7 +354,42 @@ export default function CartDashboard() {
       
       const result = await response.json();
       
-      // Clear the cart after successful checkout
+      // If using CCAvenue, redirect to payment page
+      if (formData.paymentMethod === 'ccavenue' && result.orderId) {
+        // Initiate CCAvenue payment
+        const paymentResponse = await fetch('/api/payment/ccavenue', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderId: result.orderId,
+            amount: result.total,
+            customerDetails: {
+              name: formData.name,
+              email: formData.email,
+              address: formData.address,
+              city: formData.city,
+              state: formData.state,
+              zipCode: formData.zipCode,
+              phone: formData.phone
+            }
+          }),
+        });
+        
+        if (!paymentResponse.ok) {
+          const errorData = await paymentResponse.json();
+          throw new Error(errorData.message || 'Failed to initiate payment');
+        }
+        
+        const paymentResult = await paymentResponse.json();
+        
+        // Redirect to CCAvenue payment page
+        window.location.href = paymentResult.paymentUrl;
+        return;
+      }
+      
+      // For non-CCAvenue payments, clear cart and redirect to confirmation
       clearCart();
       
       toast({

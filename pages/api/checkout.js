@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   await dbConnect();
 
   try {
-    const { items, shippingInfo, paymentInfo, confirmOrder } = req.body;
+    const { items, shippingInfo, paymentMethod, confirmOrder } = req.body;
 
     if (!items || !items.length || !shippingInfo || !shippingInfo.email) {
       return res.status(400).json({ message: 'Cart items and shipping information are required' });
@@ -82,7 +82,8 @@ export default async function handler(req, res) {
         orderItems.push({
           product: item.id,
           quantity: item.quantity,
-          price: itemPrice
+          price: itemPrice,
+          name: product.name
         });
       }
     }
@@ -110,30 +111,6 @@ export default async function handler(req, res) {
       });
     }
     
-    // Process the order with available items
-    for (const item of orderItems) {
-      // Find the product
-      const product = await Product.findById(item.product);
-      
-      // Find available license keys
-      const availableKeys = await LicenseKey.find({
-        product: item.product,
-        sold: false,
-      }).limit(item.quantity);
-      
-      // Mark license keys as sold and add to list
-      for (const key of availableKeys) {
-        key.sold = true;
-        key.order = null; // Will be updated after order creation
-        await key.save();
-        licenseKeys.push(key.key);
-      }
-      
-      // Decrease product stock count
-      product.stockCount -= item.quantity;
-      await product.save();
-    }
-
     // Generate a unique order ID with prefix
     const randomId = crypto.randomBytes(4).toString('hex');
     const orderId = `secure-key-ord-${randomId}-${Date.now()}`;
@@ -143,16 +120,17 @@ export default async function handler(req, res) {
       orderId, // Custom order ID for tracking
       items: orderItems,
       total,
-      status: 'completed',
-      paymentMethod: 'credit_card',
-      paymentStatus: 'paid',
+      status: paymentMethod === 'ccavenue' ? 'pending' : 'completed', // Set status based on payment method
+      paymentMethod: paymentMethod || 'credit_card',
+      paymentStatus: paymentMethod === 'ccavenue' ? 'pending' : 'paid', // Set payment status based on payment method
       shippingAddress: {
         name: shippingInfo.name,
         email: shippingInfo.email,
         address: shippingInfo.address,
         city: shippingInfo.city,
         state: shippingInfo.state,
-        zipCode: shippingInfo.zipCode
+        zipCode: shippingInfo.zipCode,
+        phone: shippingInfo.phone
       }
     };
 
@@ -163,28 +141,65 @@ export default async function handler(req, res) {
 
     const order = await Order.create(orderData);
 
-    // Update license keys with order ID
-    await LicenseKey.updateMany(
-      { key: { $in: licenseKeys } },
-      { $set: { order: order._id } }
-    );
+    // For non-CCAvenue payments, process the order immediately
+    if (paymentMethod !== 'ccavenue') {
+      // Process the order with available items
+      for (const item of orderItems) {
+        // Find the product
+        const product = await Product.findById(item.product);
+        
+        // Find available license keys
+        const availableKeys = await LicenseKey.find({
+          product: item.product,
+          sold: false,
+        }).limit(item.quantity);
+        
+        // Mark license keys as sold and add to list
+        for (const key of availableKeys) {
+          key.sold = true;
+          key.order = order._id;
+          await key.save();
+          licenseKeys.push(key.key);
+        }
+        
+        // Decrease product stock count
+        product.stockCount -= item.quantity;
+        await product.save();
+      }
 
-    // Send license keys via email
-    const deliveryResult = await sendLicenseKey({
-      email: shippingInfo.email,
-      licenseKey: licenseKeys.join('\n'),
-      productName: availableItems.map(item => item.name).join(', '),
-      orderId: orderId // Include the custom order ID in the email
-    });
+      // Update license keys with order ID
+      await LicenseKey.updateMany(
+        { key: { $in: licenseKeys } },
+        { $set: { order: order._id } }
+      );
 
-    return res.status(200).json({
-      message: 'Order completed successfully',
-      orderId: order._id,
-      customOrderId: orderId, // Return the custom order ID to the client
-      deliveryResult,
-      processedItems: availableItems,
-      skippedItems: unavailableItems
-    });
+      // Send license keys via email
+      const deliveryResult = await sendLicenseKey({
+        email: shippingInfo.email,
+        licenseKey: licenseKeys.join('\n'),
+        productName: availableItems.map(item => item.name).join(', '),
+        orderId: orderId // Include the custom order ID in the email
+      });
+
+      return res.status(200).json({
+        message: 'Order completed successfully',
+        orderId: order._id,
+        customOrderId: orderId, // Return the custom order ID to the client
+        deliveryResult,
+        processedItems: availableItems,
+        skippedItems: unavailableItems
+      });
+    } else {
+      // For CCAvenue payments, just return the order ID
+      return res.status(200).json({
+        message: 'Order created successfully, awaiting payment',
+        orderId: order._id,
+        customOrderId: orderId,
+        total,
+        processedItems: availableItems,
+        skippedItems: unavailableItems
+      });
+    }
   } catch (error) {
     console.error('Checkout error:', error);
     return res.status(500).json({ message: 'Error processing checkout' });
