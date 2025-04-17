@@ -23,20 +23,21 @@ export const CartProvider = ({ children }) => {
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
       try {
-        setCartItems(JSON.parse(storedCart));
+        const parsedCart = JSON.parse(storedCart);
+        setCartItems(parsedCart);
       } catch (error) {
         console.error('Error parsing cart from localStorage:', error);
       }
     }
     setIsLoading(false);
-  }, []);
+  }, []); // Empty dependency array since we only want this to run once
 
   // Save cart items to localStorage whenever they change
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && cartItems.length > 0) {
       localStorage.setItem('cart', JSON.stringify(cartItems));
     }
-  }, [cartItems, isLoading]);
+  }, [cartItems]); // Remove isLoading from dependencies
 
   // Add an item to the cart
   const addToCart = (product) => {

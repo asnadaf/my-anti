@@ -18,6 +18,7 @@ export default function BuyAntivirusPage({
   usingFallback = false,
   initialError = null
 }) {
+  
   const router = useRouter();
   const isInitialMount = useRef(true);
   const [sortOption, setSortOption] = useState('relevance');
@@ -48,7 +49,7 @@ export default function BuyAntivirusPage({
     }
   }, [initialProducts, totalCount, totalPages, currentPage, pageSize]);
 
-  // Check if query params have changed significantly
+  // Check if query params have changIed significantly
   const haveQueriesChanged = useCallback((oldQuery, newQuery) => {
     const relevantParams = ['security', 'brand', 'duration', 'minPrice', 'maxPrice', 'page'];
     

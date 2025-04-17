@@ -19,17 +19,33 @@ export default function Layout({ children, title = 'Buy Antivirus Software | Sec
     
     // Check authentication status only once on mount
     const checkAuth = async () => {
+      // Check if we already have a cached auth state
+      const cachedAuth = sessionStorage.getItem('isAuthenticated');
+      if (cachedAuth !== null) {
+        setIsAuthenticated(cachedAuth === 'true');
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch('/api/auth/verify', {
           credentials: 'include',
+          cache: 'no-store'
         });
-        setIsAuthenticated(response.ok);
+        
+        const isAuth = response.ok;
+        setIsAuthenticated(isAuth);
+        // Cache the auth state
+        sessionStorage.setItem('isAuthenticated', isAuth.toString());
       } catch (error) {
+        console.error('Auth check error:', error);
         setIsAuthenticated(false);
+        sessionStorage.setItem('isAuthenticated', 'false');
       } finally {
         setIsLoading(false);
       }
     };
+
     checkAuth();
   }, []); // Empty dependency array means this runs only once on mount
 
@@ -39,6 +55,8 @@ export default function Layout({ children, title = 'Buy Antivirus Software | Sec
     try {
       await logout();
       setIsAuthenticated(false);
+      // Clear the cached auth state
+      sessionStorage.removeItem('isAuthenticated');
       router.push('/auth/login');
     } catch (error) {
       console.error('Logout error:', error);

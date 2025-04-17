@@ -382,30 +382,40 @@ export default function Home({
 }
 
 // Server-side rendering with getServerSideProps
-export async function getServerSideProps() {
+export async function getServerSideProps({ res }) {
   try {
+    // Add a cache control header to prevent unnecessary refetches
+    const cacheControl = 'public, s-maxage=60, stale-while-revalidate=300';
+    
     const [
       featuredProducts,
       hotDealsProducts,
       trendingProducts,
       newProducts
     ] = await Promise.all([
-      fetchProducts({ tag: 'Featured' }),
-      fetchProducts({ tag: 'Top' }),
-      fetchProducts({ tag: 'Trending' }),
-      fetchProducts({ tag: 'New' })
+      fetchProducts({ tag: 'Featured' }).catch(() => ({ products: [] })),
+      fetchProducts({ tag: 'Top' }).catch(() => ({ products: [] })),
+      fetchProducts({ tag: 'Trending' }).catch(() => ({ products: [] })),
+      fetchProducts({ tag: 'New' }).catch(() => ({ products: [] }))
     ]);
+
+    // Set cache control header
+    res.setHeader('Cache-Control', cacheControl);
 
     return {
       props: {
-        featuredProducts: featuredProducts.products,
-        hotDealsProducts: hotDealsProducts.products,
-        trendingProducts: trendingProducts.products,
-        newProducts: newProducts.products
+        featuredProducts: featuredProducts.products || [],
+        hotDealsProducts: hotDealsProducts.products || [],
+        trendingProducts: trendingProducts.products || [],
+        newProducts: newProducts.products || []
       }
     };
   } catch (error) {
     console.error('Error fetching products:', error);
+    
+    // Set cache control header even on error
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+
     return {
       props: {
         featuredProducts: [],

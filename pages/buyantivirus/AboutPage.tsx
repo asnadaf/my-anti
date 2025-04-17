@@ -98,133 +98,72 @@ export default function AboutPage() {
       <div className="min-h-screen flex flex-col bg-background">
         {/* <Header /> */}
         <main className="flex-grow">
-          <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-16 dark:bg-gradient-to-br dark:from-blue-900 dark:to-indigo-900" aria-label="About Hero">
-            <div className="container mx-auto px-4 text-center">
-              <Shield size={64} className="mx-auto mb-6 text-white" aria-hidden="true" />
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-6">About SecureKeyMaster</h1>
-              <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-                We're dedicated to providing genuine antivirus license keys at the best prices 
-                with instant delivery and exceptional customer service.
-              </p>
-            </div>
-          </section>
-          
-          <section className="py-16" aria-label="Our Story">
-            <div className="container mx-auto px-4">
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-foreground">Our Story</h2>
-                <article className="prose prose-lg max-w-none text-gray-600 dark:text-muted-foreground dark:prose-invert">
-                  <p>
-                    Founded in 2015, SecureKeyMaster began with a simple mission: to make premium digital security accessible to everyone. 
-                    We noticed that many users were foregoing essential security software due to high prices, which left them vulnerable to cyber threats.
-                  </p>
-                  <p>
-                    By establishing direct relationships with authorized distributors and leveraging bulk purchasing power, 
-                    we've been able to offer genuine antivirus license keys at prices significantly below retail, without compromising on quality or authenticity.
-                  </p>
-                  <p>
-                    Today, SecureKeyMaster has served over 50,000 customers worldwide, helping individuals and businesses secure their digital lives 
-                    with genuine protection from leading brands like Norton, McAfee, Bitdefender, and more.
-                  </p>
-                  <p>
-                    What sets us apart is not just our competitive pricing, but our commitment to customer satisfaction. 
-                    Our dedicated support team works around the clock to ensure a seamless experience, from purchase to activation and beyond.
-                  </p>
-                </article>
-              </div>
-            </div>
-          </section>
-          
-          <section className="py-16" aria-label="Our Values">
-            <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold mb-12 text-center text-gray-900 dark:text-foreground">Our Values</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {[
-                  {
-                    icon: Award,
-                    title: "Authenticity",
-                    description: "We stand behind the authenticity of every license key we sell. All our products are sourced from authorized channels and come with a 100% guarantee of successful activation."
-                  },
-                  {
-                    icon: Users,
-                    title: "Customer First",
-                    description: "Our customers are our priority. We're committed to providing exceptional service, from easy purchasing to responsive support for any questions or issues that may arise."
-                  },
-                  {
-                    icon: Globe,
-                    title: "Accessibility",
-                    description: "We believe everyone deserves robust digital protection. Our competitive pricing makes premium security software accessible to individuals and businesses of all sizes."
-                  },
-                  {
-                    icon: ThumbsUp,
-                    title: "Quality",
-                    description: "We only offer products from reputable, established security brands known for their effectiveness and reliability in protecting against the latest digital threats."
-                  },
-                  {
-                    icon: Clock,
-                    title: "Efficiency",
-                    description: "Time matters when it comes to security. Our instant delivery system ensures you receive your license key immediately after purchase, allowing for immediate protection."
-                  },
-                  {
-                    icon: Shield,
-                    title: "Security",
-                    description: "We practice what we preach. All transactions on our platform are secured with advanced encryption, and we never store sensitive payment information."
-                  }
-                ].map((value, index) => {
-                  const Icon = value.icon;
-                  return (
-                    <article key={index} className="bg-white dark:bg-card p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 dark:border dark:border-border">
-                      <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full inline-block mb-4">
-                        <Icon size={32} className="text-blue-600 dark:text-blue-400" aria-hidden="true" />
-                      </div>
-                      <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-foreground">{value.title}</h3>
-                      <p className="text-gray-600 dark:text-muted-foreground">
-                        {value.description}
-                      </p>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-          
-          <section className="py-16" aria-label="Our Promise">
+          <section className="py-16 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-foreground">Our Promise to You</h2>
-                <p className="text-xl text-gray-600 dark:text-muted-foreground mb-8">
-                  At SecureKeyMaster, we're committed to providing you with genuine antivirus license keys at the best prices,
-                  backed by exceptional service and support.
+                <h1 className="text-4xl md:text-5xl font-bold mb-6">About SecureKeyMaster</h1>
+                <p className="text-xl text-blue-100">
+                  Your trusted partner in digital security since 2015. We provide genuine antivirus license keys at the best prices with exceptional customer service.
                 </p>
-                <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <Button asChild className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">
-                    <a href="/products" aria-label="Browse our products">Browse Products</a>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <a href="/contact" aria-label="Contact our support team">Contact Us</a>
-                  </Button>
+              </div>
+            </div>
+          </section>
+          
+          <section className="py-12 bg-white">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-blue-600 mb-2">50,000+</div>
+                  <p className="text-gray-600">Happy Customers</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-blue-600 mb-2">24/7</div>
+                  <p className="text-gray-600">Customer Support</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-blue-600 mb-2">100%</div>
+                  <p className="text-gray-600">Genuine Products</p>
                 </div>
               </div>
             </div>
           </section>
-
-          <section className="py-16 bg-gray-50 dark:bg-gray-900" aria-label="FAQ Section">
+          
+          <section className="py-12 bg-gray-50">
             <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold mb-12 text-center text-gray-900 dark:text-foreground">Frequently Asked Questions</h2>
-              <div className="max-w-3xl mx-auto">
-                <details className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
-                  <summary className="font-semibold cursor-pointer text-gray-900 dark:text-foreground">Are your antivirus license keys genuine?</summary>
-                  <p className="mt-2 text-gray-600 dark:text-muted-foreground">Yes, all our license keys are 100% genuine and sourced directly from authorized distributors. We provide a guarantee of successful activation with every purchase.</p>
-                </details>
-                <details className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
-                  <summary className="font-semibold cursor-pointer text-gray-900 dark:text-foreground">How quickly will I receive my license key?</summary>
-                  <p className="mt-2 text-gray-600 dark:text-muted-foreground">We provide instant delivery of license keys. You'll receive your key immediately after purchase via email and can access it in your account dashboard.</p>
-                </details>
-                <details className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
-                  <summary className="font-semibold cursor-pointer text-gray-900 dark:text-foreground">What payment methods do you accept?</summary>
-                  <p className="mt-2 text-gray-600 dark:text-muted-foreground">We accept all major credit cards, PayPal, and various other secure payment methods. All transactions are encrypted and secure.</p>
-                </details>
+              <h2 className="text-3xl font-bold text-center mb-12">Why Choose Us</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                    <Shield className="text-blue-600 h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Genuine Products</h3>
+                  <p className="text-gray-600">All our license keys are 100% genuine and sourced directly from authorized distributors.</p>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                    <Clock className="text-blue-600 h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Instant Delivery</h3>
+                  <p className="text-gray-600">Get your license key immediately after purchase with our automated delivery system.</p>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                    <Users className="text-blue-600 h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">24/7 Support</h3>
+                  <p className="text-gray-600">Our dedicated support team is always ready to help you with any questions or concerns.</p>
+                </div>
               </div>
+            </div>
+          </section>
+          
+          <section className="py-16 bg-blue-600 text-white">
+            <div className="container mx-auto px-4 text-center">
+              <h2 className="text-3xl font-bold mb-6">Ready to Secure Your Devices?</h2>
+              <p className="text-xl mb-8">Join thousands of satisfied customers who trust SecureKeyMaster for their antivirus needs.</p>
+              <Button className="bg-white text-blue-600 hover:bg-blue-50">
+                Shop Now
+              </Button>
             </div>
           </section>
         </main>
