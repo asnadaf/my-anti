@@ -43,7 +43,7 @@ export const CartProvider = ({ children }) => {
     setCartItems((prevItems) => {
       // Check if the product is already in the cart
       const existingItemIndex = prevItems.findIndex(
-        (item) => item.id === product._id
+        (item) => item.id === (product._id || product.id)
       );
 
       if (existingItemIndex >= 0) {
@@ -59,10 +59,10 @@ export const CartProvider = ({ children }) => {
         return [
           ...prevItems,
           {
-            id: product._id,
+            id: product._id || product.id,
             name: product.name,
             brand: product.brand,
-            price: product.discountPrice,
+            price: product.discountPrice || product.price,
             originalPrice: product.originalPrice,
             quantity: 1,
             image: product.image,
@@ -74,6 +74,10 @@ export const CartProvider = ({ children }) => {
 
   // Update the quantity of an item in the cart
   const updateQuantity = (id, newQuantity) => {
+    if (newQuantity < 1) {
+      removeItem(id);
+      return;
+    }
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.id === id ? { ...item, quantity: newQuantity } : item
@@ -114,4 +118,4 @@ export const CartProvider = ({ children }) => {
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
-}; 
+};

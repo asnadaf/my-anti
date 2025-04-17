@@ -7,6 +7,9 @@ import ProductGrid from '../../components/products/ProductGrid';
 import SortBar from '../../components/products/SortBar';
 import ProductCarousel from './components/ProductCarousel';
 import ProductCard from '../../components/products/ProductCard';
+import ProductDetailsModal from '../../components/ProductDetailsModal';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
 
 export default function BuyAntivirusPage({ 
   topProduct, 
@@ -34,6 +37,8 @@ export default function BuyAntivirusPage({
     currentPage,
     pageSize
   });
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
   // Initialize products with server-side data
   useEffect(() => {
@@ -293,6 +298,12 @@ export default function BuyAntivirusPage({
   const recommendedProducts = products?.filter(product => product.rating && product.rating >= 4.5) || [];
   const topProducts = products?.filter(product => product.popular) || [];
 
+  // Handle product click
+  const handleProductClick = useCallback((product) => {
+    setSelectedProduct(product);
+    setIsProductModalOpen(true);
+  }, []);
+
   return (
     <>
       <Head>
@@ -455,7 +466,11 @@ export default function BuyAntivirusPage({
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                   {products.map((product) => (
-                    <div key={product.id || product._id} className="h-[100px] sm:h-auto">
+                    <div 
+                      key={product.id || product._id} 
+                      className="h-[100px] sm:h-auto cursor-pointer"
+                      onClick={() => handleProductClick(product)}
+                    >
                       <ProductCard product={product} />
                     </div>
                   ))}
@@ -527,6 +542,12 @@ export default function BuyAntivirusPage({
           </div>
         </div>
       </main>
+
+      <ProductDetailsModal
+        product={selectedProduct}
+        isOpen={isProductModalOpen}
+        onClose={() => setIsProductModalOpen(false)}
+      />
     </>
   );
 }

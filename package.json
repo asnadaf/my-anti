@@ -13,6 +13,7 @@
     "seed-db": "node seed-db.js"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.2",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-accordion": "^1.2.4",
     "@radix-ui/react-checkbox": "^1.1.5",
