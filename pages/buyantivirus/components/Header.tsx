@@ -30,7 +30,7 @@ export default function Header() {
   console.log("Should show count?", getItemCount() > 0);
 
   const navigationItems = [
-    { name: "Products", href: "/products", description: "Browse our antivirus products" },
+    { name: "Products", href: "/buyantivirus", description: "Browse our antivirus products" },
     { name: "About", href: "/about", description: "Learn about SecureKeyMaster" },
     { name: "Contact", href: "/contact", description: "Get in touch with our team" },
     { name: "Support", href: "/support", description: "Get help and support" },

@@ -143,7 +143,7 @@ export default function SearchPage() {
                   <p className="text-gray-600 dark:text-gray-300 mb-4">
                     No products found matching your search criteria.
                   </p>
-                  <Button onClick={() => router.push('/products')}>
+                  <Button onClick={() => router.push('/buyantivirus')}>
                     Browse All Products
                   </Button>
                 </div>
@@ -153,7 +153,7 @@ export default function SearchPage() {
                     {results?.products.map((product) => (
                       <Link
                         key={product._id}
-                        href={`/products/${product.slug}`}
+                        href={`/buyantivirus/${product.slug}`}
                         className="group"
                       >
                         <motion.div

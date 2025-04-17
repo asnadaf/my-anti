@@ -18,7 +18,7 @@ export default function OrderConfirmation() {
   // Redirect to products page if no orderId (prevents direct access to confirmation page)
   useEffect(() => {
     if (!orderId) {
-      router.push('/buyantivirus/products');
+      router.push('/buyantivirus');
     } else {
       // Fetch order details
       fetchOrderDetails();
@@ -85,7 +85,7 @@ export default function OrderConfirmation() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Order Not Found</h1>
           <p className="text-gray-600 mb-6">We couldn't find the order you're looking for.</p>
-          <Link href="/buyantivirus/products">
+          <Link href="/buyantivirus">
             <Button>Return to Products</Button>
           </Link>
         </div>
@@ -173,7 +173,7 @@ export default function OrderConfirmation() {
 
             <div className="border-t border-gray-200 pt-6">
               <div className="flex justify-between">
-                <Link href="/buyantivirus/products">
+                <Link href="/buyantivirus">
                   <Button variant="outline" className="flex items-center">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Continue Shopping

@@ -32,7 +32,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
       addToCart(product);
     }
     onClose();
-    router.push('/buyantivirus/cart');
+    router.push('/cart'); // Redirect to cart page
   };
 
   const handleQuantityChange = (e) => {

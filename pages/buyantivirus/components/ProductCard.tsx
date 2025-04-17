@@ -63,21 +63,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   } = product;
 
   // Generate product URL
-  const productUrl = React.useMemo(() => {
-    if (!name) return '/buyantivirus/products';
+  const getProductUrl = () => {
+    if (!name) return '/buyantivirus';
     
-    if (slug) {
-      return `/buyantivirus/products/${encodeURIComponent(slug)}`;
-    }
-    
-    // Generate a safe slug from the name
-    const safeSlug = name
+    const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
-      
-    return `/buyantivirus/products/${encodeURIComponent(safeSlug)}`;
-  }, [name, slug]);
+    if (typeof slug === 'string') {
+      return `/buyantivirus/${encodeURIComponent(slug)}`;
+    }
+    
+    // Fallback for safety
+    const safeSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return `/buyantivirus/${encodeURIComponent(safeSlug)}`;
+  };
 
   if (!name || !discountPrice) {
     return null;
@@ -85,7 +85,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div className="h-full">
-      <Link href={productUrl} className="block h-full">
+      <Link href={getProductUrl()} className="block h-full">
         {/* Mobile View (up to 640px) */}
         <div className="sm:hidden flex h-full bg-white rounded-lg shadow-sm">
           {/* Mobile Image Section - Square with rounded corners */}

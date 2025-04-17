@@ -67,7 +67,7 @@ export default function Home({
           "price": product.discountPrice,
           "priceCurrency": "INR",
           "availability": "https://schema.org/InStock",
-          "url": `https://securekeymaster.com/buyantivirus/products/${product.slug}`
+          "url": `https://securekeymaster.com/buyantivirus/${product.slug}`
         }
       }
     }))
@@ -171,7 +171,7 @@ export default function Home({
                 <h1 className="text-3xl md:text-5xl font-bold mb-4">Premium Antivirus License Keys at Unbeatable Prices</h1>
                 <p className="text-xl mb-6 text-blue-100">Get up to 80% off on genuine Norton, McAfee, Bitdefender, Kaspersky & more. Instant delivery and 24/7 support.</p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/buyantivirus/products">
+                  <Link href="/buyantivirus">
                     <Button className="bg-white text-blue-600 hover:bg-blue-50">Shop Now</Button>
                   </Link>
                   <Link href="/buyantivirus/contact">
@@ -246,7 +246,7 @@ export default function Home({
                 <div className="z-10 relative">
                   <h3 className="text-xl md:text-2xl font-bold mb-2">TOP SELLING PRODUCTS</h3>
                   <p className="mb-4">Trusted by thousands of customers worldwide</p>
-                  <Link href="/buyantivirus/products?sort=bestseller">
+                  <Link href="/buyantivirus?sort=bestseller">
                     <Button className="bg-white text-blue-600 hover:bg-blue-50">Shop Now</Button>
                   </Link>
                 </div>
@@ -258,7 +258,7 @@ export default function Home({
                 <div className="z-10 relative">
                   <h3 className="text-xl md:text-2xl font-bold mb-2">SAVE BIG - UP TO 80% OFF</h3>
                   <p className="mb-4">Limited time offer on all antivirus products</p>
-                  <Link href="/buyantivirus/products?sort=discount">
+                  <Link href="/buyantivirus?sort=discount">
                     <Button className="bg-white text-red-600 hover:bg-red-50">Shop Now</Button>
                   </Link>
                 </div>

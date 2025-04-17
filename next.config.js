@@ -1,6 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/buyantivirus/products/:slug*',
+        destination: '/buyantivirus',
+        permanent: true,
+      },
+      {
+        source: '/products/:slug*',
+        destination: '/buyantivirus',
+        permanent: true,
+      }
+    ];
+  },
   images: {
     domains: ['localhost','picsum.photos','fastly.picsum.photos','example.com'],
   },

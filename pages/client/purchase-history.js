@@ -53,7 +53,7 @@ export default function PurchaseHistory({ orders }) {
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               You haven't made any purchases yet.
             </p>
-            <Link href="/products">
+            <Link href="/buyantivirus">
               <Button>Browse Products</Button>
             </Link>
           </div>
