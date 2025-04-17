@@ -16,7 +16,7 @@ const productsData = [
     id: 1,
     name: "Norton 360 Deluxe",
     description: "Complete protection for up to 5 devices with secure VPN and dark web monitoring.",
-    price: 29.99,
+    discountPrice: 29.99,
     originalPrice: 79.99,
     discount: 63,
     devices: 5,
@@ -29,7 +29,7 @@ const productsData = [
     id: 2,
     name: "McAfee Total Protection",
     description: "Advanced security suite with identity protection for up to 10 devices.",
-    price: 34.99,
+    discountPrice: 34.99,
     originalPrice: 89.99,
     discount: 61,
     devices: 10,
@@ -42,7 +42,7 @@ const productsData = [
     id: 3,
     name: "Bitdefender Total Security",
     description: "Premium protection against all cyber threats for up to 5 devices.",
-    price: 32.99,
+    discountPrice: 32.99,
     originalPrice: 84.99,
     discount: 61,
     devices: 5,
@@ -55,7 +55,7 @@ const productsData = [
     id: 4,
     name: "Kaspersky Internet Security",
     description: "Essential protection for your privacy, money and kids online.",
-    price: 24.99,
+    discountPrice: 24.99,
     originalPrice: 59.99,
     discount: 58,
     devices: 3,
@@ -68,7 +68,7 @@ const productsData = [
     id: 5,
     name: "ESET Smart Security Premium",
     description: "Advanced security solution with password manager and encryption.",
-    price: 39.99,
+    discountPrice: 39.99,
     originalPrice: 79.99,
     discount: 50,
     devices: 5,
@@ -81,7 +81,7 @@ const productsData = [
     id: 6,
     name: "Avast Premium Security",
     description: "All-in-one protection against viruses and privacy threats.",
-    price: 27.99,
+    discountPrice: 27.99,
     originalPrice: 69.99,
     discount: 60,
     devices: 10,
@@ -97,7 +97,7 @@ interface ProductsContentProps {
     id: number;
     name: string;
     description: string;
-    price: number;
+    discountPrice: number;
     originalPrice: number;
     discount: number;
     devices: number;
@@ -117,7 +117,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ productsData }) => {
     .filter(product => {
       if (selectedFilter === 'all') return true;
       if (selectedFilter === 'popular') return product.popular;
-      if (selectedFilter === 'under30') return product.price < 30;
+      if (selectedFilter === 'under30') return product.discountPrice < 30;
       if (selectedFilter === 'multidevice') return product.devices > 3;
       return true;
     });
@@ -145,7 +145,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({ productsData }) => {
                 "description": product.description,
                 "offers": {
                   "@type": "Offer",
-                  "price": product.price.toString(),
+                  "price": product.discountPrice.toString(),
                   "priceCurrency": "USD"
                 }
               }

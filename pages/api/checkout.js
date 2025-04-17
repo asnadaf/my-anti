@@ -150,9 +150,9 @@ export default async function handler(req, res) {
       orderId, // Custom order ID for tracking
       items: orderItems,
       total,
-      status: paymentMethod === 'ccavenue' ? 'pending' : 'completed', // Set status based on payment method
+      status: 'completed', // Set status to completed by default
       paymentMethod: paymentMethod || 'credit_card',
-      paymentStatus: paymentMethod === 'ccavenue' ? 'pending' : 'paid', // Set payment status based on payment method
+      paymentStatus: 'paid', // Set payment status to paid by default
       shippingAddress: {
         name: shippingInfo.name,
         email: shippingInfo.email,
@@ -171,25 +171,8 @@ export default async function handler(req, res) {
 
     const order = await Order.create(orderData);
 
-    // If payment method is Cashfree, create payment session
-    if (paymentMethod === 'cashfree' && confirmOrder) {
-      console.log('Creating Cashfree payment session with amount:', parsedAmount); // Debug log
-      
-      const paymentSession = await createPaymentSession({
-        orderId,
-        amount: parsedAmount,
-        customerDetails: shippingInfo
-      });
-
-      return res.status(200).json({
-        success: true,
-        orderId,
-        paymentUrl: paymentSession.payment_link
-      });
-    }
-
-    // For non-CCAvenue and non-Cashfree payments, process the order immediately
-    if (paymentMethod !== 'ccavenue' && paymentMethod !== 'cashfree') {
+    // For non-Cashfree payments, process the order immediately
+    if (paymentMethod !== 'cashfree') {
       // Process the order with available items
       for (const item of orderItems) {
         // Find the product
@@ -237,7 +220,7 @@ export default async function handler(req, res) {
         skippedItems: unavailableItems
       });
     } else {
-      // For CCAvenue payments, just return the order ID
+      // For Cashfree payments, return the order ID
       return res.status(200).json({
         message: 'Order created successfully, awaiting payment',
         orderId: order._id,
