@@ -132,16 +132,17 @@ export default function Header() {
             <Button 
               variant="ghost" 
               size="icon"
-              className="relative"
+              className="relative p-2 text-foreground hover:text-foreground/80"
               aria-label="Shopping cart"
             >
-              <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+              <ShoppingCart className="h-6 w-6" aria-hidden="true" />
               {getItemCount() > 0 && (
-                <span 
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold z-10"
+                <Badge 
+                  variant="secondary"
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-blue-600 text-white border-0"
                 >
                   {getItemCount()}
-                </span>
+                </Badge>
               )}
             </Button>
           </Link>
@@ -224,16 +225,17 @@ export default function Header() {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="relative"
+                  className="relative p-2 text-foreground hover:text-foreground/80"
                   aria-label="Shopping cart"
                 >
-                  <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+                  <ShoppingCart className="h-6 w-6" aria-hidden="true" />
                   {getItemCount() > 0 && (
-                    <span 
-                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold z-10"
+                    <Badge 
+                      variant="secondary"
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-blue-600 text-white border-0"
                     >
                       {getItemCount()}
-                    </span>
+                    </Badge>
                   )}
                 </Button>
               </Link>

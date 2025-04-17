@@ -22,8 +22,8 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
     for (let i = 0; i < quantity; i++) {
       addToCart(product);
     }
-    alert(`${quantity} item(s) added to cart!`);
     setQuantity(1); // Reset quantity
+    router.push('/buyantivirus/cart');
   };
 
   const handleBuyNow = () => {
@@ -32,7 +32,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
       addToCart(product);
     }
     onClose();
-    router.push('/cart'); // Redirect to cart page
+    router.push('/buyantivirus/cart');
   };
 
   const handleQuantityChange = (e) => {
