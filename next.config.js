@@ -39,7 +39,15 @@ const nextConfig = {
     }
 
     config.resolve.modules = ['node_modules', '.'];
-    config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx', '.json'];
+    config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx', '.json', '.mjs'];
+
+    config.module.rules.push({
+      test: /\.m?js$/,
+      type: 'javascript/auto',
+      resolve: {
+        fullySpecified: false
+      }
+    });
 
     return config;
   },
