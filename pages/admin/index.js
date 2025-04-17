@@ -7,53 +7,71 @@ import User from '@models/User';
 import Order from '@models/Order';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { BookOpen } from 'lucide-react';
 
 export default function AdminDashboard({ stats, recentOrders }) {
   const router = useRouter();
+
+  const dashboardItems = [
+    {
+      title: "Categories",
+      description: "Manage categories",
+      icon: null,
+      href: "/admin/categories",
+      count: stats.categories
+    },
+    {
+      title: "Products",
+      description: "Manage products",
+      icon: null,
+      href: "/admin/products",
+      count: stats.products
+    },
+    {
+      title: "License Keys",
+      description: "Manage license keys",
+      icon: null,
+      href: "/admin/licenseKeys",
+      count: stats.keys
+    },
+    {
+      title: "Users",
+      description: "Manage user accounts",
+      icon: null,
+      href: "/admin/users",
+      count: stats.users
+    },
+    {
+      title: "Installation Guides",
+      description: "Manage product installation guides",
+      icon: <BookOpen className="h-8 w-8 text-indigo-600" />,
+      href: "/admin/installation-guides"
+    },
+    {
+      title: "Durations",
+      description: "Manage durations",
+      icon: null,
+      href: "/admin/durations"
+    }
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Link href="/admin/categories" className="block">
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <h2 className="text-xl font-semibold mb-2">Categories</h2>
-            <p className="text-3xl font-bold text-primary">{stats.categories}</p>
-            <p className="text-sm text-gray-500">Total categories</p>
-          </div>
-        </Link>
-
-        <Link href="/admin/products" className="block">
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <h2 className="text-xl font-semibold mb-2">Products</h2>
-            <p className="text-3xl font-bold text-primary">{stats.products}</p>
-            <p className="text-sm text-gray-500">Total products</p>
-          </div>
-        </Link>
-
-        <Link href="/admin/licenseKeys" className="block">
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <h2 className="text-xl font-semibold mb-2">License Keys</h2>
-            <p className="text-3xl font-bold text-primary">{stats.keys}</p>
-            <p className="text-sm text-gray-500">Total keys</p>
-          </div>
-        </Link>
-
-        <Link href="/admin/users" className="block">
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <h2 className="text-xl font-semibold mb-2">Users</h2>
-            <p className="text-3xl font-bold text-primary">{stats.users}</p>
-            <p className="text-sm text-gray-500">Total users</p>
-          </div>
-        </Link>
-
-        <Link href="/admin/durations" className="block">
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <h2 className="text-xl font-semibold mb-2">Durations</h2>
-            <p className="text-sm text-gray-500">Manage durations</p>
-          </div>
-        </Link>
+        {dashboardItems.map((item) => (
+          <Link key={item.title} href={item.href} className="block">
+            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <h2 className="text-xl font-semibold mb-2">{item.title}</h2>
+              {item.icon && item.icon}
+              {item.count !== undefined && (
+                <p className="text-3xl font-bold text-primary">{item.count}</p>
+              )}
+              <p className="text-sm text-gray-500">{item.description}</p>
+            </div>
+          </Link>
+        ))}
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
