@@ -17,7 +17,7 @@ const nextConfig = {
     ],
     unoptimized: process.env.NODE_ENV === 'development',
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': './src',
@@ -28,6 +28,19 @@ const nextConfig = {
       '@styles': './styles',
       '@public': './public'
     };
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
+    config.resolve.modules = ['node_modules', '.'];
+    config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx', '.json'];
+
     return config;
   },
   async headers() {
@@ -59,7 +72,10 @@ const nextConfig = {
       }
     ]
   },
-  trailingSlash: false,
+  poweredByHeader: false,
+  generateEtags: false,
+  distDir: '.next',
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx']
 }
 
 module.exports = nextConfig 
