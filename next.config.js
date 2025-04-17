@@ -3,6 +3,19 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: ['localhost','picsum.photos','fastly.picsum.photos','example.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        pathname: '/images/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.example.com',
+        pathname: '/images/**',
+      }
+    ],
+    unoptimized: process.env.NODE_ENV === 'development',
   },
   webpack: (config) => {
     config.resolve.alias = {

@@ -15,7 +15,13 @@ export default function Document() {
         />
         
         {/* Preload critical assets */}
-        <link rel="preload" href="/images/logo.svg" as="image" type="image/svg+xml" />
+        <link 
+          rel="preload" 
+          href="/images/logo.svg" 
+          as="image" 
+          type="image/svg+xml"
+          fetchpriority="high"
+        />
         
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />

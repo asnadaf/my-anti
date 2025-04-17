@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -45,10 +45,21 @@ interface ProductDetailsPageProps {
   error?: string;
 }
 
-export default function ProductDetailsPage({ product, error }: ProductDetailsPageProps) {
+export default function ProductDetailsPage({ product: initialProduct, error: initialError }: ProductDetailsPageProps) {
   const router = useRouter();
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const [product, setProduct] = useState(initialProduct);
+  const [error, setError] = useState(initialError);
+  const [isLoading, setIsLoading] = useState(!initialProduct);
+
+  useEffect(() => {
+    if (router.isFallback) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [router.isFallback]);
 
   const handleAddToCart = () => {
     if (product) {
@@ -60,6 +71,19 @@ export default function ProductDetailsPage({ product, error }: ProductDetailsPag
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full mx-auto p-8 bg-white rounded-xl shadow-md text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
