@@ -21,7 +21,11 @@ interface Product {
   originalPrice?: number;
   discount?: number;
   devices?: number;
-  duration?: string;
+  duration?: string | {
+    name: string;
+    devices: number;
+    period: string;
+  };
   features: string[];
   image: string;
   popular?: boolean;
@@ -274,13 +278,26 @@ export const getServerSideProps: GetServerSideProps = async ({ params, req }) =>
 
   try {
     const decodedSlug = decodeURIComponent(slug);
-    const product = await fetchProductBySlug(decodedSlug);
+    
+    // Add a timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timed out')), 5000);
+    });
+    
+    // Race between the product fetch and the timeout
+    const product = await Promise.race([
+      fetchProductBySlug(decodedSlug),
+      timeoutPromise
+    ]).catch(error => {
+      console.error('Error or timeout fetching product:', error);
+      return null;
+    });
 
     if (!product) {
       return {
-        redirect: {
-          destination: '/buyantivirus/products',
-          permanent: false,
+        props: {
+          product: null,
+          error: 'Product not found'
         },
       };
     }
@@ -320,10 +337,11 @@ export const getServerSideProps: GetServerSideProps = async ({ params, req }) =>
     };
   } catch (error) {
     console.error('Error fetching product:', error);
+    // Return a not found state instead of redirecting
     return {
-      redirect: {
-        destination: '/buyantivirus/products',
-        permanent: false,
+      props: {
+        product: null,
+        error: error instanceof Error ? error.message : 'Failed to load product'
       },
     };
   }
