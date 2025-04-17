@@ -218,21 +218,24 @@ export default function BuyAntivirusPage({
   useEffect(() => {
     if (!router.isReady) return;
 
-    // Skip the first mount since we already have SSR data
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
+    const fetchData = async () => {
+      // Skip the first mount since we already have SSR data
+      if (isInitialMount.current) {
+        isInitialMount.current = false;
+        setCurrentQuery(router.query);
+        return;
+      }
+      
+      // Only fetch if the relevant query params have changed
+      if (!haveQueriesChanged(currentQuery, router.query)) {
+        return;
+      }
+      
       setCurrentQuery(router.query);
-      return;
-    }
-    
-    // Only fetch if the relevant query params have changed
-    if (!haveQueriesChanged(currentQuery, router.query)) {
-      return;
-    }
-    
-    setCurrentQuery(router.query);
-    fetchProducts(router.query, sortOption);
-    
+      await fetchProducts(router.query, sortOption);
+    };
+
+    fetchData();
   }, [router.query, router.isReady, haveQueriesChanged, fetchProducts, sortOption, currentQuery]);
 
   // Handle sort change - this immediately changes products 
