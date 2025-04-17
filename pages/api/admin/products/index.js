@@ -3,6 +3,7 @@ import dbConnect from '@lib/db';
 import Product from '@models/Product';
 import Category from '@models/Category';
 import Duration from '@models/Duration';
+import { invalidateProductCache } from '../../../../lib/cache';
 
 async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -14,10 +15,26 @@ async function handler(req, res) {
 
     // Previous admin check is now handled by withAdminAuth
     
-    const { name, description, originalPrice, discountPrice, category, status, image, features, stockCount, duration, tag } = req.body;
+    const { 
+      name, 
+      description, 
+      originalPrice, 
+      discountPrice, 
+      category, 
+      status, 
+      image, 
+      features, 
+      stockCount, 
+      duration, 
+      tag,
+      securityFeature,
+      brand
+    } = req.body;
 
-    if (!name || !description || !originalPrice || !category) {
-      return res.status(400).json({ message: 'Name, description, original price, and category are required' });
+    if (!name || !description || !originalPrice || !category || !securityFeature || !brand) {
+      return res.status(400).json({ 
+        message: 'Name, description, original price, category, security feature, and brand are required' 
+      });
     }
 
     // Generate slug from name
@@ -38,7 +55,9 @@ async function handler(req, res) {
       stockCount: parseInt(stockCount) || 0,
       duration: duration || null,
       tag: tag || 'None',
-      slug
+      slug,
+      securityFeature,
+      brand
     });
 
     // Validate duration if provided
@@ -51,10 +70,13 @@ async function handler(req, res) {
 
     await product.save();
 
+    // Invalidate product cache
+    invalidateProductCache();
+
     return res.status(201).json(product);
   } catch (error) {
     console.error('Error creating product:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error', details: error.message });
   }
 }
 

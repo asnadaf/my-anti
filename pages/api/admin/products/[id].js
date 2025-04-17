@@ -2,6 +2,7 @@ import { requireAdmin } from '@lib/auth';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
 import Duration from '@models/Duration';
+import { invalidateProductCache } from '../../../../lib/cache';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -22,10 +23,26 @@ export default async function handler(req, res) {
     await dbConnect();
 
     if (req.method === 'PUT') {
-      const { name, description, originalPrice, discountPrice, category, status, image, features, stockCount, duration, tag } = req.body;
+      const { 
+        name, 
+        description, 
+        originalPrice, 
+        discountPrice, 
+        category, 
+        status, 
+        image, 
+        features, 
+        stockCount, 
+        duration, 
+        tag,
+        securityFeature,
+        brand
+      } = req.body;
 
-      if (!name || !description || !originalPrice || !category) {
-        return res.status(400).json({ message: 'Name, description, original price, and category are required' });
+      if (!name || !description || !originalPrice || !category || !securityFeature || !brand) {
+        return res.status(400).json({ 
+          message: 'Name, description, original price, category, security feature, and brand are required' 
+        });
       }
 
       // Generate new slug if name has changed
@@ -46,7 +63,9 @@ export default async function handler(req, res) {
         stockCount: parseInt(stockCount) || 0,
         duration: duration || null,
         tag: tag || 'None',
-        slug: newSlug
+        slug: newSlug,
+        securityFeature,
+        brand
       };
 
       // Validate duration if provided
@@ -67,6 +86,8 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: 'Product not found' });
       }
 
+      // Invalidate product cache
+      invalidateProductCache();
       return res.status(200).json(product);
     }
 
@@ -76,10 +97,12 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: 'Product not found' });
       }
 
+      // Invalidate product cache
+      invalidateProductCache();
       return res.status(200).json({ message: 'Product deleted successfully' });
     }
   } catch (error) {
     console.error('Error handling product:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error', details: error.message });
   }
 } 

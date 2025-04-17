@@ -5,6 +5,7 @@ import SEO from '@components/SEO';
 import dbConnect from '@lib/db';
 import Product from '@models/Product';
 import { requireAdmin } from '@lib/auth';
+import { invalidateProductCache } from '../../lib/cache';
 
 export default function ProductsPage({ products: initialProducts }) {
   const [products, setProducts] = useState(initialProducts);
@@ -39,11 +40,64 @@ export default function ProductsPage({ products: initialProducts }) {
         throw new Error(data.message || 'Failed to delete product');
       }
 
+      // Invalidate product cache
+      invalidateProductCache();
       setProducts(products.filter((product) => product._id !== id));
     } catch (error) {
       setError(error.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newProduct),
+      });
+
+      if (response.ok) {
+        // Invalidate product cache
+        invalidateProductCache();
+        setProducts([...products, await response.json()]);
+        setNewProduct({
+          name: '',
+          description: '',
+          price: '',
+          category: '',
+          image: '',
+          tag: '',
+        });
+        setShowAddForm(false);
+      }
+    } catch (error) {
+      console.error('Error adding product:', error);
+    }
+  };
+
+  const handleUpdateProduct = async (id, updatedProduct) => {
+    try {
+      const response = await fetch(`/api/admin/products/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedProduct),
+      });
+
+      if (response.ok) {
+        // Invalidate product cache
+        invalidateProductCache();
+        const updated = await response.json();
+        setProducts(products.map((p) => (p._id === id ? updated : p)));
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
     }
   };
 

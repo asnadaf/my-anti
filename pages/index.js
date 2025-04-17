@@ -8,6 +8,7 @@ import { ShoppingCart, Award, Clock, Shield, Zap, Check, Tag, ChevronLeft, Chevr
 import ProductCard from '../components/products/ProductCard';
 import Footer from "@components/Footer";
 import ProductCarousel from '../components/ProductCarousel';
+import { getFromCache, setInCache, CACHE_KEYS } from '../lib/cache';
 
 export default function Home({ 
   featuredProducts = [], 
@@ -387,6 +388,20 @@ export async function getServerSideProps({ res }) {
     // Add a cache control header to prevent unnecessary refetches
     const cacheControl = 'public, s-maxage=60, stale-while-revalidate=300';
     
+    // Check if we have cached data
+    const cachedData = getFromCache(CACHE_KEYS.HOME_PAGE);
+    
+    if (cachedData) {
+      console.log('Serving home page from cache');
+      // Set cache control headers
+      res.setHeader('Cache-Control', cacheControl);
+      return {
+        props: cachedData
+      };
+    }
+    
+    // If no cached data, fetch from database
+    console.log('Fetching home page data from database');
     const [
       featuredProducts,
       hotDealsProducts,
@@ -399,16 +414,22 @@ export async function getServerSideProps({ res }) {
       fetchProducts({ tag: 'New' }).catch(() => ({ products: [] }))
     ]);
 
-    // Set cache control header
+    // Prepare the data
+    const pageData = {
+      featuredProducts: featuredProducts.products || [],
+      hotDealsProducts: hotDealsProducts.products || [],
+      trendingProducts: trendingProducts.products || [],
+      newProducts: newProducts.products || []
+    };
+
+    // Cache the data for 10 minutes
+    setInCache(CACHE_KEYS.HOME_PAGE, pageData, 600);
+
+    // Set cache control headers
     res.setHeader('Cache-Control', cacheControl);
 
     return {
-      props: {
-        featuredProducts: featuredProducts.products || [],
-        hotDealsProducts: hotDealsProducts.products || [],
-        trendingProducts: trendingProducts.products || [],
-        newProducts: newProducts.products || []
-      }
+      props: pageData
     };
   } catch (error) {
     console.error('Error fetching products:', error);
