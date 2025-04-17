@@ -64,4 +64,14 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
   }
 };
 
-export default mongoose.models.User || mongoose.model('User', UserSchema); 
+// Export the model
+let User;
+try {
+  // Try to get the existing model
+  User = mongoose.model('User');
+} catch {
+  // If the model doesn't exist, create it
+  User = mongoose.model('User', UserSchema);
+}
+
+export default User; 

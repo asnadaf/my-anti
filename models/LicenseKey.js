@@ -54,4 +54,14 @@ function generateLicenseKey() {
   return key;
 }
 
-export default mongoose.models.LicenseKey || mongoose.model('LicenseKey', licenseKeySchema);
+// Export the model
+let LicenseKey;
+try {
+  // Try to get the existing model
+  LicenseKey = mongoose.model('LicenseKey');
+} catch {
+  // If the model doesn't exist, create it
+  LicenseKey = mongoose.model('LicenseKey', licenseKeySchema);
+}
+
+export default LicenseKey;

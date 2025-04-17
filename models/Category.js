@@ -44,9 +44,14 @@ CategorySchema.pre('save', function(next) {
   next();
 });
 
-// Export the schema
-export { CategorySchema };
-
 // Export the model
-const Category = mongoose.models?.Category || mongoose.model('Category', CategorySchema);
+let Category;
+try {
+  // Try to get the existing model
+  Category = mongoose.model('Category');
+} catch {
+  // If the model doesn't exist, create it
+  Category = mongoose.model('Category', CategorySchema);
+}
+
 export default Category; 

@@ -84,10 +84,14 @@ ProductSchema.pre('save', function(next) {
   next();
 });
 
-// Fix for the "Cannot read properties of undefined (reading 'Product')" error
-// Using a safer pattern for Next.js that ensures mongoose.models exists
-const ProductModel = (mongoose.models && mongoose.models.Product) 
-  ? mongoose.models.Product 
-  : mongoose.model('Product', ProductSchema);
+// Export the model
+let Product;
+try {
+  // Try to get the existing model
+  Product = mongoose.model('Product');
+} catch {
+  // If the model doesn't exist, create it
+  Product = mongoose.model('Product', ProductSchema);
+}
 
-export default ProductModel;
+export default Product;
