@@ -138,7 +138,7 @@ export default function ProductDetailsPage({ product, error }: ProductDetailsPag
             <div className="flex items-center justify-center space-x-2 mb-4">
               {product.category && (
                 <Badge variant="outline" className="bg-white/10 text-white border-white/20">
-                  {product.category.name}
+                  {typeof product.category === 'object' ? product.category.name : product.category}
                 </Badge>
               )}
               {product.popular && (
@@ -240,7 +240,11 @@ export default function ProductDetailsPage({ product, error }: ProductDetailsPag
                     <Clock className="h-5 w-5 text-blue-500" />
                     <div>
                       <p className="text-sm text-gray-500">Duration</p>
-                      <p className="font-medium">{product.duration}</p>
+                      <p className="font-medium">
+                        {typeof product.duration === 'object' 
+                          ? `${product.duration.devices} Devices - ${product.duration.period}`
+                          : product.duration}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -281,25 +285,32 @@ export const getServerSideProps: GetServerSideProps = async ({ params, req }) =>
       };
     }
 
-    // Ensure all required fields are present
+    // Ensure all required fields are present and properly formatted
     const sanitizedProduct = {
       ...product,
-      _id: product._id || '',
+      _id: product._id?.toString() || '',
       name: product.name || '',
       slug: product.slug || decodedSlug,
       description: product.description || '',
-      discountPrice: product.discountPrice || 0,
-      originalPrice: product.originalPrice || 0,
+      discountPrice: Number(product.discountPrice) || 0,
+      originalPrice: Number(product.originalPrice) || 0,
       features: Array.isArray(product.features) ? product.features : [],
       image: product.image || '/placeholder-image.jpg',
       brand: product.brand || '',
-      category: product.category || { _id: '', name: '' },
-      rating: product.rating || 0,
-      reviews: product.reviews || 0,
+      category: product.category ? {
+        _id: product.category._id?.toString() || '',
+        name: product.category.name || ''
+      } : null,
+      rating: Number(product.rating) || 0,
+      reviews: Number(product.reviews) || 0,
       inStock: Boolean(product.inStock),
       sku: product.sku || '',
-      devices: product.devices || 1,
-      duration: product.duration || '1 Year'
+      devices: Number(product.devices) || 1,
+      duration: product.duration ? {
+        name: product.duration.name || '1 Year',
+        devices: Number(product.duration.devices) || 1,
+        period: product.duration.period || '1 Year'
+      } : '1 Year'
     };
 
     return {
