@@ -137,12 +137,9 @@ export default function Header() {
             >
               <ShoppingCart className="h-6 w-6" aria-hidden="true" />
               {getItemCount() > 0 && (
-                <Badge 
-                  variant="secondary"
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-blue-600 text-white border-0"
-                >
+                <div className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[11px] w-4 h-4 flex items-center justify-center rounded-full">
                   {getItemCount()}
-                </Badge>
+                </div>
               )}
             </Button>
           </Link>
@@ -230,12 +227,9 @@ export default function Header() {
                 >
                   <ShoppingCart className="h-6 w-6" aria-hidden="true" />
                   {getItemCount() > 0 && (
-                    <Badge 
-                      variant="secondary"
-                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-blue-600 text-white border-0"
-                    >
+                    <div className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[11px] w-4 h-4 flex items-center justify-center rounded-full">
                       {getItemCount()}
-                    </Badge>
+                    </div>
                   )}
                 </Button>
               </Link>

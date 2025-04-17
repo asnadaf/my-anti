@@ -89,57 +89,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Mobile View (up to 640px) */}
         <div className="sm:hidden flex h-full bg-white rounded-lg shadow-sm">
           {/* Mobile Image Section - Square with rounded corners */}
-          <div className="relative w-[100px] h-[100px] flex-shrink-0 p-2">
-            <div className="relative w-full h-full bg-white rounded-lg overflow-hidden">
-              <Image
-                src={image}
-                alt={name}
-                fill
-                className="object-contain p-1.5"
-                sizes="100px"
-              />
-              {popular && (
-                <Badge variant="default" className="absolute top-1 right-1 bg-blue-600 text-white text-[10px] px-1 py-0">
-                  Popular
-                </Badge>
-              )}
-            </div>
+          <div className="w-1/3 relative">
+            <Image
+              src={image}
+              alt={name}
+              fill
+              className="object-cover rounded-l-lg"
+            />
           </div>
-
+          
           {/* Mobile Content Section */}
-          <div className="flex-1 p-2 flex flex-col justify-between min-w-0">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 truncate leading-tight">{name}</h3>
-              {brand && (
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-[10px] text-gray-500 truncate">{brand}</span>
-                  <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 rounded">{category || 'Antivirus'}</span>
-                </div>
+          <div className="w-2/3 p-3 flex flex-col">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">
+              {name}
+            </h3>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg font-bold text-gray-900">
+                ₹{discountPrice}
+              </span>
+              {originalPrice && (
+                <span className="text-xs text-gray-500 line-through">
+                  ₹{originalPrice}
+                </span>
               )}
             </div>
-
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-1">
-                <span className="text-base font-bold text-gray-900">${discountPrice.toFixed(2)}</span>
-                {originalPrice > discountPrice && (
-                  <span className="text-[10px] text-gray-500 line-through">${originalPrice.toFixed(2)}</span>
-                )}
-                {discount > 0 && (
-                  <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200 text-[10px] h-4 px-1 ml-auto">
-                    {discount}% OFF
-                  </Badge>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="text-[10px] text-gray-500 truncate">
-                  {deviceCount} {deviceCount === 1 ? 'Device' : 'Devices'} • {durationPeriod}
-                </div>
-                <Button variant="default" size="sm" className="h-6 px-3 text-[11px] bg-blue-600 hover:bg-blue-700 text-white">
-                  View
-                </Button>
-              </div>
-            </div>
+            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+              {description}
+            </p>
           </div>
         </div>
 
@@ -162,30 +138,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
 
           {/* Desktop Content Section */}
-          <div className="p-4 flex-1 flex flex-col">
-            <div className="mb-2">
-              <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">{name}</h3>
-              {brand && (
-                <span className="text-sm text-gray-500">{brand}</span>
-              )}
+          <div className="p-4 flex flex-col flex-grow">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {name}
+            </h3>
+            <p className="text-sm text-gray-500 mb-4 flex-grow">
+              {description}
+            </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-gray-900">
+                  ₹{discountPrice}
+                </span>
+                {originalPrice && (
+                  <span className="text-sm text-gray-500 line-through">
+                    ₹{originalPrice}
+                  </span>
+                )}
+              </div>
             </div>
-
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl font-bold text-gray-900">${discountPrice.toFixed(2)}</span>
-              {originalPrice > discountPrice && (
-                <span className="text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</span>
-              )}
-              {discount > 0 && (
-                <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
-                  {discount}% OFF
-                </Badge>
-              )}
-            </div>
-
-            <div className="text-sm text-gray-500 mb-4">
-              {deviceCount} {deviceCount === 1 ? 'Device' : 'Devices'} • {durationPeriod}
-            </div>
-
             <div className="mt-auto">
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                 View Details
