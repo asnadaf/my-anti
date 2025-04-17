@@ -78,6 +78,19 @@ const FilterBar = () => {
     // Build query parameters starting with current ones
     const queryParams = { ...router.query };
     
+    // Check if any filters have changed
+    const hasFilterChanged = 
+      (filters.security.length > 0 && queryParams.security !== filters.security.join(',')) ||
+      (filters.brand.length > 0 && queryParams.brand !== filters.brand.join(',')) ||
+      (filters.duration.length > 0 && queryParams.duration !== filters.duration.join(',')) ||
+      (filters.minPrice && queryParams.minPrice !== filters.minPrice) ||
+      (filters.maxPrice && queryParams.maxPrice !== filters.maxPrice);
+    
+    // Only reset page to 1 if filters have changed
+    if (hasFilterChanged) {
+      queryParams.page = '1';
+    }
+    
     // Update filter params
     if (filters.security.length > 0) {
       queryParams.security = filters.security.join(',');
