@@ -5,6 +5,8 @@ import LicenseKey from '../../models/LicenseKey';
 import Order from '../../models/Order';
 import { sendLicenseKey } from '../../lib/mailer';
 import crypto from 'crypto';
+import { createPaymentSession } from '../../lib/cashfree';
+import { updateOrderStatus } from '../../lib/db';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -23,10 +25,38 @@ export default async function handler(req, res) {
   await dbConnect();
 
   try {
-    const { items, shippingInfo, paymentMethod, confirmOrder } = req.body;
+    const { items, amount, shippingInfo, paymentMethod, confirmOrder } = req.body;
 
-    if (!items || !items.length || !shippingInfo || !shippingInfo.email) {
-      return res.status(400).json({ message: 'Cart items and shipping information are required' });
+    console.log('Received checkout request:', { amount, items, paymentMethod }); // Debug log
+
+    // Validate required fields
+    if (amount === undefined || amount === null || amount === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'Amount is required'
+      });
+    }
+
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid amount is required (must be a positive number)'
+      });
+    }
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cart items are required'
+      });
+    }
+
+    if (!shippingInfo || !shippingInfo.email || !shippingInfo.phone || !shippingInfo.name) {
+      return res.status(400).json({
+        success: false,
+        message: 'Shipping information is incomplete'
+      });
     }
 
     // First check: Validate all items and check stock availability
@@ -141,8 +171,25 @@ export default async function handler(req, res) {
 
     const order = await Order.create(orderData);
 
-    // For non-CCAvenue payments, process the order immediately
-    if (paymentMethod !== 'ccavenue') {
+    // If payment method is Cashfree, create payment session
+    if (paymentMethod === 'cashfree' && confirmOrder) {
+      console.log('Creating Cashfree payment session with amount:', parsedAmount); // Debug log
+      
+      const paymentSession = await createPaymentSession({
+        orderId,
+        amount: parsedAmount,
+        customerDetails: shippingInfo
+      });
+
+      return res.status(200).json({
+        success: true,
+        orderId,
+        paymentUrl: paymentSession.payment_link
+      });
+    }
+
+    // For non-CCAvenue and non-Cashfree payments, process the order immediately
+    if (paymentMethod !== 'ccavenue' && paymentMethod !== 'cashfree') {
       // Process the order with available items
       for (const item of orderItems) {
         // Find the product
@@ -202,6 +249,9 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error('Checkout error:', error);
-    return res.status(500).json({ message: 'Error processing checkout' });
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to process checkout'
+    });
   }
 } 

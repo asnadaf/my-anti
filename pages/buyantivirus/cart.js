@@ -66,7 +66,7 @@ const CheckoutForm = ({ total, onCheckout, isProcessing }) => {
     state: '',
     zipCode: '',
     phone: '',
-    paymentMethod: 'ccavenue', // Default to CCAvenue
+    paymentMethod: 'cashfree', // Default to Cashfree
   });
 
   const handleChange = (e) => {
@@ -193,15 +193,15 @@ const CheckoutForm = ({ total, onCheckout, isProcessing }) => {
           <div className="flex items-center">
             <input
               type="radio"
-              id="ccavenue"
+              id="cashfree"
               name="paymentMethod"
-              value="ccavenue"
-              checked={formData.paymentMethod === 'ccavenue'}
+              value="cashfree"
+              checked={formData.paymentMethod === 'cashfree'}
               onChange={handleChange}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
             />
-            <label htmlFor="ccavenue" className="ml-3 block text-sm font-medium text-gray-700">
-              CCAvenue (Credit/Debit Card, UPI, Net Banking)
+            <label htmlFor="cashfree" className="ml-3 block text-sm font-medium text-gray-700">
+              Cashfree (Credit/Debit Card, UPI, Net Banking)
             </label>
           </div>
           <div className="flex items-center">
@@ -260,9 +260,18 @@ export default function CartDashboard() {
     setIsProcessing(true);
     
     try {
+      // Calculate total amount including tax
+      const subtotal = cartItems.reduce((total, item) => {
+        return total + (item.price * item.quantity);
+      }, 0);
+      
+      const tax = subtotal * 0.1; // 10% tax
+      const totalAmount = (subtotal + tax).toFixed(2); // Format to 2 decimal places
+
       // Prepare the data for the API
       const checkoutData = {
         items: cartItems,
+        amount: parseFloat(totalAmount), // Ensure it's a number
         shippingInfo: {
           name: formData.name,
           email: formData.email,
@@ -322,9 +331,24 @@ export default function CartDashboard() {
     setIsProcessing(true);
     
     try {
+      // Calculate total amount including tax
+      const subtotal = cartItems.reduce((total, item) => {
+        return total + (item.price * item.quantity);
+      }, 0);
+      
+      const tax = subtotal * 0.1; // 10% tax
+      const totalAmount = (subtotal + tax).toFixed(2); // Format to 2 decimal places
+
+      console.log('Calculated amounts:', {
+        subtotal,
+        tax,
+        totalAmount
+      }); // Debug log
+
       // Prepare the data for the API
       const checkoutData = {
         items: cartItems,
+        amount: parseFloat(totalAmount), // Ensure it's a number
         shippingInfo: {
           name: formData.name,
           email: formData.email,
@@ -335,8 +359,10 @@ export default function CartDashboard() {
           phone: formData.phone
         },
         paymentMethod: formData.paymentMethod,
-        confirmOrder: true // This is the actual order
+        confirmOrder: true
       };
+
+      console.log('Sending checkout data:', checkoutData); // Debug log
       
       // Call the checkout API
       const response = await fetch('/api/checkout', {
@@ -354,42 +380,14 @@ export default function CartDashboard() {
       
       const result = await response.json();
       
-      // If using CCAvenue, redirect to payment page
-      if (formData.paymentMethod === 'ccavenue' && result.orderId) {
-        // Initiate CCAvenue payment
-        const paymentResponse = await fetch('/api/payment/ccavenue', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            orderId: result.orderId,
-            amount: result.total,
-            customerDetails: {
-              name: formData.name,
-              email: formData.email,
-              address: formData.address,
-              city: formData.city,
-              state: formData.state,
-              zipCode: formData.zipCode,
-              phone: formData.phone
-            }
-          }),
-        });
-        
-        if (!paymentResponse.ok) {
-          const errorData = await paymentResponse.json();
-          throw new Error(errorData.message || 'Failed to initiate payment');
-        }
-        
-        const paymentResult = await paymentResponse.json();
-        
-        // Redirect to CCAvenue payment page
-        window.location.href = paymentResult.paymentUrl;
+      // If using Cashfree, redirect to payment page
+      if (formData.paymentMethod === 'cashfree' && result.paymentUrl) {
+        // Redirect to Cashfree payment page
+        window.location.href = result.paymentUrl;
         return;
       }
       
-      // For non-CCAvenue payments, clear cart and redirect to confirmation
+      // For non-Cashfree payments, clear cart and redirect to confirmation
       clearCart();
       
       toast({
