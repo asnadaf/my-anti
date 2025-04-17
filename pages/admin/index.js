@@ -73,13 +73,13 @@ export default function AdminDashboard({ stats, recentOrders }) {
               {recentOrders.map((order) => (
                 <tr key={order._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {order._id}
+                    {order.orderId}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.product.name}
+                    {order.items[0]?.product?.name || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.user.email}
+                    {order.user?.email || 'Guest'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -118,7 +118,7 @@ export async function getServerSideProps(context) {
     LicenseKey.countDocuments(),
     User.countDocuments(),
     Order.find()
-      .populate('product', 'name')
+      .populate('items.product', 'name')
       .populate('user', 'email')
       .sort({ createdAt: -1 })
       .limit(5)
